@@ -1,0 +1,21 @@
+<div class="menu-container">
+  <!-- Icono del Menú Hamburger -->
+  <div class="hamburger" (click)="toggleMenu($event)">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <!-- Menú -->
+  <div class="menu" [class.open]="isMenuOpen">
+    <ul>
+      <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+      <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+      <li><a routerLink="/agenda" routerLinkActive="active">Agendar</a></li>
+      <li><a routerLink="/pacientes"  routerLinkActive="active">Pacientes</a></li>
+      <li><a aria-disabled="true" href="#" class="disabled">Historiales Clínicos</a></li>
+      <li><a aria-disabled="true" href="#" class="disabled">Configuración</a></li>
+      <li><a aria-disabled="true" href="#" class="disabled">Cerrar sesión</a></li>
+    </ul>
+  </div>
+</div>

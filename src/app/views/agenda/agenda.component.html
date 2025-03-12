@@ -1,0 +1,40 @@
+<div class="agenda-container">
+  <div class="filters-section">
+    <mat-form-field class="filter-field" appearance="outline">
+      <mat-label>Paciente</mat-label>
+      <input
+        type="text"
+        matInput
+        [formControl]="pacienteControl"
+        [matAutocomplete]="autoPaciente"
+        placeholder="Seleccione un paciente"
+      />
+      <mat-autocomplete #autoPaciente="matAutocomplete" (optionSelected)="onPacienteSelected($event)">
+        <mat-option *ngFor="let paciente of (filteredPacientes | async) ?? []" [value]="paciente.name">
+          {{ paciente.name }}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="calendar-section">
+    <div class="calendar-view">
+      <app-mont-view [appointments]="appointments"></app-mont-view>
+    </div>
+  </div>
+
+  <div class="add-appointment">
+    <button (click)="openAppointmentModal()">Añadir Cita</button>
+  </div>
+
+  <div class="appointment-details" *ngIf="selectedAppointment">
+    <h3>Detalles de la Cita</h3>
+    <p><strong>Hora:</strong> {{ selectedAppointment.time }}</p>
+    <p><strong>Paciente:</strong> {{ selectedAppointment.paciente }}</p>
+    <p><strong>Motivo:</strong> {{ selectedAppointment.motivo }}</p>
+    <p><strong>Notas:</strong> {{ selectedAppointment.notes || 'Sin notas' }}</p>
+    <button (click)="editAppointment(selectedAppointment)">Editar</button>
+    <button (click)="deleteAppointment(selectedAppointment)">Eliminar</button>
+  </div>
+</div>

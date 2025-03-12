@@ -1,0 +1,19 @@
+<div class="appointment-container">
+  <h1>Agregar Cita</h1>
+  <form [formGroup]="appointmentForm" class="appointment-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Hora</mat-label>
+      <input matInput formControlName="time" type="time">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Notas</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+    </mat-form-field>
+
+    <div class="button-group">
+      <button mat-flat-button color="primary" type="submit" (click)="onSave()">Guardar</button>
+      <button mat-button color="warn" type="button" (click)="onCancel()">Cancelar</button>
+    </div>
+  </form>
+</div>

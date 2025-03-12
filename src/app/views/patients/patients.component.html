@@ -1,0 +1,89 @@
+<div class="patients-container">
+    <!-- Barra de búsqueda avanzada -->
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar paciente por nombre o ID" />
+      <button (click)="searchPatients()">Buscar</button>
+      <button (click)="resetSearch()">Restablecer</button>
+    </div>
+  
+    <!-- Listado de pacientes -->
+    <div class="patients-list">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Edad</th>
+              <th>Género</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let patient of patients">
+              <td data-label="ID">{{ patient.id }}</td>
+              <td data-label="Nombre">{{ patient.name }}</td>
+              <td data-label="Edad">{{ patient.age }}</td>
+              <td data-label="Género">{{ patient.gender }}</td>
+              <td class="action-buttons" data-label="Acciones">
+                <button (click)="viewPatientDetails(patient)">Ver Detalles</button>
+                <button (click)="editPatient(patient)">Editar</button>
+                <button (click)="deletePatient(patient.id)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+  
+    <!-- Modal de detalles del paciente -->
+    <div class="patient-details-modal" *ngIf="selectedPatient">
+      <div class="modal-content">
+        <h3>Detalles del Paciente: {{ selectedPatient.name }}</h3>
+        <div class="patient-info">
+          <p><strong>ID:</strong> {{ selectedPatient.id }}</p>
+          <p><strong>Edad:</strong> {{ selectedPatient.age }}</p>
+          <p><strong>Género:</strong> {{ selectedPatient.gender }}</p>
+          <p><strong>Historial Médico:</strong> {{ selectedPatient.medicalHistory }}</p>
+          <h4>Citas Previas</h4>
+          <ul>
+            <li *ngFor="let appointment of selectedPatient.appointments">{{ appointment.date }} - {{ appointment.description }}</li>
+          </ul>
+          <h4>Documentos Médicos</h4>
+          <ul>
+            <li *ngFor="let document of selectedPatient.documents">
+              <a href="{{ document.url }}" target="_blank">{{ document.name }}</a>
+            </li>
+          </ul>
+        </div>
+        <button (click)="scheduleAppointment()">Agendar Cita</button>
+        <button (click)="closeDetails()">Cerrar</button>
+      </div>
+    </div>
+  
+    <!-- Modal para agregar o editar paciente -->
+    <div class="add-edit-patient-modal" *ngIf="isModalOpen">
+      <div class="modal-content">
+        <h3>{{ isEdit ? 'Editar Paciente' : 'Agregar Paciente' }}</h3>
+        <form (ngSubmit)="savePatient()">
+          <label for="name">Nombre</label>
+          <input type="text" [(ngModel)]="patientForm.name" name="name" required />
+  
+          <label for="age">Edad</label>
+          <input type="number" [(ngModel)]="patientForm.age" name="age" required />
+  
+          <label for="gender">Género</label>
+          <select [(ngModel)]="patientForm.gender" name="gender" required>
+            <option value="Male">Masculino</option>
+            <option value="Female">Femenino</option>
+          </select>
+  
+          <label for="medicalHistory">Historial Médico</label>
+          <textarea [(ngModel)]="patientForm.medicalHistory" name="medicalHistory"></textarea>
+  
+          <button type="submit">{{ isEdit ? 'Guardar Cambios' : 'Agregar Paciente' }}</button>
+        </form>
+        <button (click)="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  

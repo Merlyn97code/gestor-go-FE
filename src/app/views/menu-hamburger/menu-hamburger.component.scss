@@ -1,0 +1,85 @@
+/* Estilos generales */
+.menu-container {
+  position: relative;
+  font-family: 'Arial', sans-serif;
+  background-color: #ffffff;
+}
+
+.hamburger {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 20px;
+}
+
+.hamburger .bar {
+  width: 30px;
+  height: 3px;
+  background-color: #007bff;
+  border-radius: 2px;
+}
+
+/* Estilo del menú */
+.menu {
+  background-color: #f4f9fc;
+  padding: 15px;
+  position: absolute;
+  top: 0;  
+  width: 250px;
+  height: 100vh;
+  transition: transform 0.3s ease;
+  transform: translateX(-100%);
+}
+
+.menu.open {
+  transform: translateX(0);
+}
+
+.menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.menu ul li {
+  margin: 15px 0;
+}
+
+.menu ul li a {
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.menu ul li a:hover {
+  background-color: #e0f7fa;  /* Azul suave */
+  transform: scale(1.05);
+}
+
+/* Estilo para el enlace activo */
+.menu ul li a.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Estilo para los enlaces deshabilitados */
+.menu ul li a.disabled {
+  color: #b0bec5; /* Gris claro */
+  pointer-events: none;
+  background-color: #f5f5f5; /* Fondo gris claro */
+}
+
+/* Menú en dispositivos pequeños */
+@media (max-width: 768px) {
+  .menu {
+    width: 70%;
+  }
+
+  .hamburger .bar {
+    background-color: #fff;
+  }
+}

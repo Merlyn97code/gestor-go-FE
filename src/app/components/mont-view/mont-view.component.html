@@ -1,0 +1,8 @@
+<div class="calendar-container">
+  <mat-card class="calendar-card">
+    <mat-calendar [(selected)]="selected" (selectedChange)="onDateSelected($event)"></mat-calendar>
+  </mat-card>
+  <p class="selected-date">
+    Fecha seleccionada: <strong>{{ selected | date: 'fullDate' }}</strong>
+  </p>
+</div>

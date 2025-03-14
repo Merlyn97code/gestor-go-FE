@@ -1,76 +1,106 @@
 .agenda-container {
+  max-width: 900px;
+  margin: auto;
   padding: 30px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  gap: 30px;
+  background-color: #ffffff;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filters-section {
+  display: flex;
+  justify-content: center;
 }
 
 .calendar-section {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  align-items: center;
+  gap: 20px;
 }
 
 .add-appointment {
   display: flex;
   justify-content: center;
-
-  button {
-    background-color: #28a745;
-    color: white;
-    padding: 15px 40px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-  }
-
-  button:hover {
-    background-color: #218838;
-  }
 }
 
 .appointment-details {
   padding: 20px;
   background-color: #ffffff;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-.appointment-form {
+.appointment-actions {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  justify-content: space-around;
+  margin-top: 15px;
 }
 
 mat-form-field {
   width: 100%;
+  max-width: 400px;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
+.primary-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s ease;
 }
 
-.modal-actions button {
+.primary-btn:hover {
+  background-color: #218838;
+}
+
+.secondary-btn {
   background-color: #007bff;
   color: white;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: 0.3s ease;
 }
 
-.modal-actions button:hover {
+.secondary-btn:hover {
   background-color: #0056b3;
+}
+
+.danger-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.danger-btn:hover {
+  background-color: #c82333;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .agenda-container {
+    padding: 20px;
+  }
+
+  .appointment-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .primary-btn, .secondary-btn, .danger-btn {
+    width: 100%;
+  }
 }

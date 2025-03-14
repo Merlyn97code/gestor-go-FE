@@ -1,40 +1,82 @@
 .appointment-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  background: #f9f9f9;
+  border-radius: 15px;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+  width: 80%;
+  max-width: 600px; /* Aumenté el tamaño */
+  margin: auto;
+}
+
+/* Ajuste del título */
+h1 {
+  font-size: 2rem; /* Hice más grande el título */
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+/* Estilo de la nota tipo Post-it */
+mat-form-field textarea {
+  background-color: #fffa90; /* Amarillo pastel */
+  font-family: "Comic Sans MS", "Patrick Hand", cursive;
+  font-size: 18px; /* Letra más grande */
+  padding: 12px;
+  border: none;
+  outline: none;
+  resize: none;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+  transform: rotate(-2deg);
+  height: 200px; /* Aumenté la altura */
+}
+
+/* Efecto al enfocar */
+mat-form-field textarea:focus {
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Formulario más espacioso */
+.appointment-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Grupo de botones más grande y con mejor espaciado */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button {
+  flex: 1;
+  margin: 0 10px;
+  padding: 12px 0;
+  font-size: 16px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .appointment-container {
+    width: 90%;
     padding: 20px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: auto;
-  
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 15px;
-      color: #333;
-    }
-  
-    .appointment-form {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-  
-      mat-form-field {
-        width: 100%;
-      }
-  
-      .button-group {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-  
-        button {
-          flex: 1;
-          margin: 0 5px;
-        }
-      }
-    }
   }
-  
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  mat-form-field textarea {
+    font-size: 16px;
+    height: 180px;
+  }
+
+  button {
+    font-size: 14px;
+  }
+}

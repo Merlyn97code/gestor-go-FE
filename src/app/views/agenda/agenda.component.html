@@ -25,7 +25,7 @@
   </div>
 
   <div class="add-appointment">
-    <button (click)="openAppointmentModal()">Añadir Cita</button>
+    <button class="primary-btn" (click)="openAppointmentModal()">Añadir Cita</button>
   </div>
 
   <div class="appointment-details" *ngIf="selectedAppointment">
@@ -34,7 +34,9 @@
     <p><strong>Paciente:</strong> {{ selectedAppointment.paciente }}</p>
     <p><strong>Motivo:</strong> {{ selectedAppointment.motivo }}</p>
     <p><strong>Notas:</strong> {{ selectedAppointment.notes || 'Sin notas' }}</p>
-    <button (click)="editAppointment(selectedAppointment)">Editar</button>
-    <button (click)="deleteAppointment(selectedAppointment)">Eliminar</button>
+    <div class="appointment-actions">
+      <button class="secondary-btn" (click)="editAppointment(selectedAppointment)">Editar</button>
+      <button class="danger-btn" (click)="deleteAppointment(selectedAppointment)">Eliminar</button>
+    </div>
   </div>
 </div>

@@ -1,0 +1,29 @@
+.register-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  
+    h2 {
+      margin-bottom: 20px;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+  
+    mat-form-field {
+      width: 100%;
+    }
+  
+    button {
+      width: 100%;
+      padding: 10px;
+    }
+  }
+  

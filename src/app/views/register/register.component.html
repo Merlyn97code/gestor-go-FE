@@ -1,0 +1,104 @@
+<div class="register-container">
+    <h2>Registro</h2>
+
+    <button mat-raised-button (click)="isLinear = !isLinear" id="toggle-linear">
+      {{!isLinear ? 'Enable linear mode' : 'Disable linear mode'}}
+    </button>
+    <mat-stepper [linear]="isLinear" #stepper>
+      <mat-step  label="Datos de tu negocio" [stepControl]="tenantForm">
+        <form [formGroup]="tenantForm">                
+        Datos de tu negocio
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre del negocio</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+    
+        <mat-form-field appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="phone" type="tel">
+        </mat-form-field>
+    
+        <mat-form-field appearance="outline">
+          <mat-label>WhatsApp</mat-label>
+          <input matInput formControlName="whatsAppNumber">
+        </mat-form-field>
+    
+        <mat-form-field appearance="outline">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput formControlName="email" type="email">
+        </mat-form-field>
+    
+        <mat-form-field appearance="outline">
+          <mat-label>Dirección</mat-label>
+          <textarea matInput formControlName="address"></textarea>
+        </mat-form-field>        
+          <div>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="person" label="información personal">
+        <form [formGroup]="person">
+          <mat-form-field>
+            <mat-label>Nombre(s)</mat-label>
+            <input matInput formControlName="firstName"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Apellidos</mat-label>
+            <input matInput formControlName="lastName"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Celular</mat-label>
+            <input matInput formControlName="phone"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput formControlName="email"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Direccion</mat-label>
+            <input matInput formControlName="address"
+                   >
+          </mat-form-field>
+
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>            
+
+          </div>
+        </form>
+      </mat-step>
+      <mat-step  [stepControl]="passwords">
+        <form [formGroup]="passwords">
+        
+        <ng-template matStepLabel>password</ng-template>
+        <p>Ultimo paso.</p>
+        <div>
+          <mat-form-field>
+            <mat-label>Contraseña</mat-label>
+            <input matInput formControlName="password"
+                   required>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Confirma tu contraseña</mat-label>
+            <input matInput formControlName="validatePassword"
+                   required>
+          </mat-form-field>
+          <button mat-flat-button color="primary" (click)="onSubmit()">Registrarse</button>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </form>
+      </mat-step>
+    </mat-stepper>
+
+  </div>
+  

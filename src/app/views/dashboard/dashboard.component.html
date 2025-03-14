@@ -1,46 +1,53 @@
 <div class="dashboard-container">    
-    <div class="summary-section">
-      <div class="summary-card">
-        <h3>Consultas del Día</h3>
-        <p>{{ consultasDia }}</p>
-      </div>
-      <div class="summary-card">
-        <h3>Consultas de mañana</h3>
-        <p>{{ nextAppointments }}</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Consultas</h3>
-        <p>{{ totalConsultas }}</p>
-      </div>
+
+  <!-- Sección de Resumen -->
+  <div class="summary-section">
+    <div class="summary-card">
+      <h3>Consultas del Día</h3>
+      <p>{{ consultasDia }}</p>
     </div>
-  
-    <div class="notifications-container">
-      <div class="notifications-section">
-        <h4>Próximas Consultas</h4>
-        <table class="consultas-table">
-          <thead>
-            <tr>
-              <th>Paciente</th>
-              <th>Fecha</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let consulta of proximasConsultas">
-              <td>{{ consulta.paciente }}</td>
-              <td>{{ consulta.fecha | date: 'dd/MM/yyyy' }}</td>
-              <td>
-                <button class="btn-details">Ver detalles</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="summary-card">
+      <h3>Consultas de Mañana</h3>
+      <p>{{ nextAppointments }}</p>
     </div>
-    
-      
-    <div class="direct-access-section">
-      <button (click)="verConsultasDia()">Ver Consultas del Día</button>
+    <div class="summary-card">
+      <h3>Total Consultas</h3>
+      <p>{{ totalConsultas }}</p>
     </div>
   </div>
-  
+
+  <!-- Botones de acción -->
+  <div class="action-buttons">
+    <button class="btn-primary" routerLink="/agenda">🗓️ Agendar Cita</button>
+    <button class="btn-secondary">➕ Crear Paciente y Agendar</button>
+  </div>
+
+  <!-- Tabla de Próximas Consultas -->
+  <div class="notifications-container">
+    <div class="notifications-section">
+      <h4>📅 Próximas Consultas</h4>
+      <table class="consultas-table">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let consulta of proximasConsultas">
+            <td>{{ consulta.paciente }}</td>
+            <td>{{ consulta.fecha | date: 'EEEE, dd/MM/yyyy - HH:mm' }}</td>
+
+            <td>
+              <button class="btn-details">👁️ Ver Detalles</button>
+              <button class="btn-edit">✏️ Editar</button>
+              <button class="btn-delete">🗑️ Cancelar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

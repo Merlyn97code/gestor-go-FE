@@ -1,81 +1,111 @@
 .patients-container {
   padding: 20px;
   font-family: 'Arial', sans-serif;
+  background-color: #f4f6f9; /* Fondo más profesional */
 }
 
 .search-bar {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 30px;
+  justify-content: center;
 }
 
 .search-bar input {
-  padding: 10px;
+  padding: 12px;
   width: 300px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
 }
 
 .search-bar button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.search-bar button:hover {
-  background-color: #0056b3;
-}
-
-
-.patient-details-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 80%;
-  max-width: 600px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.patient-info p {
-  margin: 10px 0;
-}
-
-.patient-info h4 {
-  margin-top: 20px;
-}
-
-.patient-details-modal button {
-  background-color: #007bff;
-  color: white;
   padding: 10px 20px;
+  background-color: #4a90e2; /* Azul más suave */
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  margin-top: 20px;
 }
 
-.patient-details-modal button:hover {
-  background-color: #0056b3;
+.search-bar button:hover {
+  background-color: #3a78c2;
 }
 
-/* Modal de agregar/editar paciente */
+.patients-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.patient-card {
+  width: 100%;
+  max-width: 350px;
+  margin-bottom: 25px;
+}
+
+.patient-card mat-card {
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.patient-card mat-card-header {
+  background-color: #4a90e2; /* Azul más elegante */
+  color: white;
+  padding: 15px;
+}
+
+.patient-card mat-card-title {
+  font-size: 20px;
+}
+
+.patient-card mat-card-subtitle {
+  font-size: 14px;
+}
+
+.patient-card mat-card-content {
+  padding: 15px;
+  font-size: 14px;
+}
+
+.patient-card .action-buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.patient-card .action-buttons button {
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.patient-card .action-buttons button:first-child {
+  background-color: #28a745;
+  color: white;
+}
+
+.patient-card .action-buttons button:nth-child(2) {
+  background-color: #ffc107;
+  color: white;
+}
+
+.patient-card .action-buttons button:nth-child(3) {
+  background-color: #dc3545;
+  color: white;
+}
+
+.patient-card .action-buttons button:hover {
+  opacity: 0.8;
+}
+
 .add-edit-patient-modal {
   position: fixed;
   top: 0;
@@ -90,150 +120,52 @@
 
 .add-edit-patient-modal .modal-content {
   background-color: white;
-  padding: 20px;
-  border-radius: 5px;
+  padding: 30px;
+  border-radius: 8px;
   width: 80%;
   max-width: 600px;
-}
-
-.add-edit-patient-modal form {
-  display: flex;
-  flex-direction: column;
-}
-
-.add-edit-patient-modal label {
-  margin: 10px 0 5px;
 }
 
 .add-edit-patient-modal input,
 .add-edit-patient-modal select,
 .add-edit-patient-modal textarea {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-bottom: 15px;
-}
-
-.add-edit-patient-modal button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
   font-size: 16px;
 }
 
-.add-edit-patient-modal button:hover {
-  background-color: #0056b3;
-}
-
-.add-edit-patient-modal button[type="submit"] {
-  margin-top: 15px;
-}
-
-.patient-details-modal button:nth-child(2) {
-  background-color: #28a745;
-}
-
-.patient-details-modal button:nth-child(2):hover {
-  background-color: #218838;
-}
-
-
-.patients-list {
-  margin-top: 20px;
-  overflow-x: auto;
-}
-
-.patients-list table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.patients-list th, .patients-list td {
-  padding: 15px;
-  text-align: left;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.patients-list th {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.patients-list td {
-  background-color: #ffffff;
-}
-
-.patients-list tr:nth-child(even) td {
-  background-color: #f9f9f9;
-}
-
-.patients-list tr:hover {
-  background-color: #f1f1f1;
-  cursor: pointer;
-}
-
-.patients-list button {
-  padding: 8px 16px;
-  background-color: #28a745;
+.add-edit-patient-modal button {
+  padding: 12px 25px;
+  background-color: #4a90e2;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 14px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
 }
 
-.patients-list button:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+.add-edit-patient-modal button:hover {
+  background-color: #3a78c2;
 }
 
-.patients-list button:focus {
-  outline: none;
-}
-
-.patients-list .action-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.patients-list .action-buttons button {
+.btn-secondary {
+  padding: 12px 20px;
   font-size: 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
 }
 
-@media (max-width: 768px) {
-  .patients-list table {
-    border: 0;
-  }
+.btn-secondary {
+  background-color: #28a745;
+  color: white;
+}
 
-  .patients-list th,
-  .patients-list td {
-    display: block;
-    padding: 10px 0;
-  }
-
-  .patients-list td {
-    border-top: 1px solid #f0f0f0;
-  }
-
-  .patients-list td:before {
-    content: attr(data-label);
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .patients-list button {
-    width: 100%;
-    margin-top: 10px;
-  }
+.btn-secondary:hover {
+  background-color: #218838;
 }

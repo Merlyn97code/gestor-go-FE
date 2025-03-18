@@ -1,13 +1,13 @@
 <!-- login.component.html -->
 <div class="login-container">
     <h2>Iniciar sesión</h2>        
-    <form (submit)="onLogin()">
+    <div class="main-containter-go" [formGroup]="emailAuth">
       <div class="form-group">
         <label for="email">Correo Electrónico</label>
         <input 
           type="email" 
           id="email" 
-          [(ngModel)]="email" 
+          formControlName="email" 
           name="email"
           class="form-control" 
           placeholder="Ingrese su correo" 
@@ -20,7 +20,7 @@
         <input 
           type="password" 
           id="password" 
-          [(ngModel)]="password" 
+          formControlName="password" 
           name="password"
           class="form-control" 
           placeholder="Ingrese su contraseña" 
@@ -28,9 +28,12 @@
         />
       </div>
       
-      <!-- Botón de inicio de sesión -->
-      <button class="btn btn-primary" type="submit">Acceder</button>
-    </form>
+      <div class="btn-container">
+        <button class="btn btn-primary" type="submit" (click)="onLogin()">Iniciar sesión</button>
+        <button class="btn btn-primary" type="submit" routerLink="/registrarse">Registrarme</button>
+      </div>
+
+    </div>
     
     <div class="forgot-password">
       <a href="#" (click)="onForgotPassword()">¿Olvidaste tu contraseña?</a>

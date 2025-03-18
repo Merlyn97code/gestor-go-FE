@@ -1,9 +1,5 @@
 <div class="register-container">
     <h2>Registro</h2>
-
-    <button mat-raised-button (click)="isLinear = !isLinear" id="toggle-linear">
-      {{!isLinear ? 'Enable linear mode' : 'Disable linear mode'}}
-    </button>
     <mat-stepper [linear]="isLinear" #stepper>
       <mat-step  label="Datos de tu negocio" [stepControl]="tenantForm">
         <form [formGroup]="tenantForm">                
@@ -33,7 +29,7 @@
           <textarea matInput formControlName="address"></textarea>
         </mat-form-field>        
           <div>
-            <button mat-button matStepperNext>Next</button>
+            <button mat-button matStepperNext>Siguiente</button>
           </div>
         </form>
       </mat-step>
@@ -70,9 +66,8 @@
           </mat-form-field>
 
           <div>
-            <button mat-button matStepperPrevious>Back</button>
-            <button mat-button matStepperNext>Next</button>            
-
+            <button mat-button matStepperNext>Siguiente</button>            
+            <button mat-button matStepperPrevious>Atras</button>          
           </div>
         </form>
       </mat-step>
@@ -93,7 +88,7 @@
                    required>
           </mat-form-field>
           <button mat-flat-button color="primary" (click)="onSubmit()">Registrarse</button>
-          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperPrevious>Atras</button>
           <button mat-button (click)="stepper.reset()">Reset</button>
         </div>
       </form>

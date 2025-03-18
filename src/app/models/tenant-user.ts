@@ -24,5 +24,6 @@ export interface User {
 export interface Register {
   tenant: Tenant,
   person: Person,
-  user: User
+  userEntity: User
+  token?: string
 }

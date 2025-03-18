@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-menu-hamburger',
@@ -12,6 +12,7 @@ import { RouterModule } from '@angular/router';
 export class MenuHamburgerComponent {
   isMenuOpen = false;
 
+  constructor(private router: Router){}
   // Función para abrir y cerrar el menú
   toggleMenu(event: MouseEvent) {
     // Evitar que el clic en el icono de hamburguesa cierre el menú
@@ -38,4 +39,10 @@ export class MenuHamburgerComponent {
       this.isMenuOpen = false;
     }
   }
+
+  logout() {
+    localStorage.removeItem('authToken');
+    this.router.navigate(['/login']);
+  }
+
 }

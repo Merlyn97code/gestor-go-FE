@@ -84,7 +84,7 @@ export class RegisterComponent implements OnInit{
         let register: Register = {
           person: this.person.value as Person,
           tenant: this.tenantForm.value as Tenant,
-          user: {
+          userEntity: {
             username: this.person.get('email')?.value as string,
             password: this.passwords.get('password')?.value as string,
             roleId: this.roleId,
@@ -94,8 +94,12 @@ export class RegisterComponent implements OnInit{
 
         this.registerService.registerNewTenant(register)
         .subscribe(userTenant => {
+
           if (userTenant) {
-            this.router.navigate(['/welcome']);
+            if (userTenant && userTenant.token) {
+              localStorage.setItem('authToken', userTenant.token);          
+              this.router.navigate(['/welcome']);
+            }            
           }          
         });
         

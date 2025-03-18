@@ -15,9 +15,9 @@ export class RegisterService extends ApiService{
     this.url += 'register-tenant-user';
   }
 
-  registerNewTenant(tenantUser: Register): Observable<any> {
+  registerNewTenant(tenantUser: Register): Observable<Register> {
 
-    return this.post<any>('',tenantUser);
+    return this.post<Register, Register>('',tenantUser);
   }
 
 

@@ -10,8 +10,8 @@ export class ApiService {
   url: string = 'http://localhost:8080/';
   constructor(private http: HttpClient) { }
 
-  post<T>(endpoint: string, body: T): Observable<T> {
-    return this.http.post<T>(this.url, body);
+  post<T, R>(endpoint: string, body: T): Observable<R> {
+    return this.http.post<R>(this.url, body);
   }
 
   

@@ -1,34 +1,35 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private router: Router) {}
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<any> {
-    // Verifica si la URL contiene '/auth' (o la ruta de login que estés usando)
-    if (req.url.includes('/auth')) {
-      // Si es una solicitud de login, no se agrega el token y se pasa tal cual
-      return next.handle(req);
-    }
-
-    // Si no es una solicitud de login, agrega el token de autenticación
-    const token = localStorage.getItem('authToken');
-    
-    if (token) {
-      const cloned = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      return next.handle(cloned);
-    }
-
-    // Si no hay token, solo pasa la solicitud sin modificarla
-    return next.handle(req);
+  // Si la URL es de autenticación, no modificar la solicitud
+  if (req.url.includes('/auth')) {
+    return next(req);
   }
-}
+
+  const token = localStorage.getItem('authToken');
+
+  if (token) {
+    const clonedReq = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+
+    return next(clonedReq).pipe(
+      catchError((error) => {
+        if (error.status === 401 || error.status === 403) {
+          console.warn('Token inválido o expirado. Redirigiendo al login.');
+          localStorage.removeItem('authToken'); // Elimina el token inválido
+          router.navigate(['/login']); // Redirige al usuario al login
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  return next(req);
+};

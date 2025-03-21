@@ -5,6 +5,7 @@ import { AgendaComponent } from './views/agenda/agenda.component';
 import { PatientsComponent } from './views/patients/patients.component';
 import { RegisterComponent } from './views/register/register.component';
 import { WelcomeComponent } from './views/welcome/welcome.component';
+import { CreatePatientComponent } from './views/create-patient/create-patient.component';
 
 export const routes: Routes = [
     {
@@ -30,5 +31,9 @@ export const routes: Routes = [
     {
         path: 'welcome',
         component: WelcomeComponent
+    },
+    {
+        path: 'patient',
+        component: CreatePatientComponent
     }
 ];

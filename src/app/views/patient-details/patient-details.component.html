@@ -1,0 +1,23 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>Detalles del Paciente</mat-card-title>
+    </mat-card-header>
+  
+    <mat-card-content>
+      <div class="patient-info">
+        <h3>{{ patient.person.firstName }} {{ patient.person.lastName }}</h3>
+        <p><strong>Teléfono:</strong> {{ patient.person.phone }}</p>
+        <p><strong>Email:</strong> {{ patient.person.email }}</p>
+        <p><strong>Dirección:</strong> {{ patient.person.address }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ patient.createdAt | date: 'short' }}</p>
+        <p><strong>Última Actualización:</strong> {{ patient.updatedAt | date: 'short' }}</p>
+      </div>
+    </mat-card-content>
+  
+    <mat-card-actions>
+      <button mat-button color="primary">Editar</button>
+      <button mat-button color="primary" (click)="viewAgenda(patient)">agendar</button>
+      <button mat-button color="warn">Eliminar</button>
+    </mat-card-actions>
+  </mat-card>
+  

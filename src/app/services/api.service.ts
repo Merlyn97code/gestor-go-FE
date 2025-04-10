@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment'; // Importa el archivo de entorno
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,31 @@ export class ApiService {
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.url}${endpoint}`);
   }
+
+  getPath<T>(id: number): Observable<T> {
+    return this.http.get<T>(`${this.url}/${id}`);
+  }
+
+  getQP<T>(endpoint: string, queryParams?: { [key: string]: any }): Observable<T> {
+    let params = new HttpParams();
+
+    if (queryParams) {
+      for (const key in queryParams) {
+        if (queryParams.hasOwnProperty(key)) {
+          const value = queryParams[key];
+          if (Array.isArray(value)) {
+            // Si el valor es un array, agrega cada elemento como un parámetro separado (común para filtros)
+            value.forEach(v => params = params.append(key, v));
+          } else if (value !== null && value !== undefined) {
+            params = params.set(key, value);
+          }
+        }
+      }
+    }
+
+    return this.http.get<T>(`${this.url}${endpoint}`, { params });
+  }
+
 
   // Método PUT
   put<T>(endpoint: string, body: T): Observable<T> {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
-import { Patient, Person } from '../models/patients';
+import { Patient, PatientData, Person } from '../models/patients';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -16,5 +16,17 @@ export class PatientsService extends ApiService{
 
   createPatient(patient: Patient): Observable<any> {
     return this.post<any, any>('',patient);
+  }
+
+  getAllPatientsByUserId(): Observable<Array<PatientData>> {
+    return this.get<Array<PatientData>>('');
+  }
+
+  getPatientById(id: number): Observable<PatientData> {
+    return this.getPath<PatientData>(id);
+  }
+
+  getPatientByName(name: string): Observable<Patient[]> {
+    return this.getQP('/search', {name});
   }
 }

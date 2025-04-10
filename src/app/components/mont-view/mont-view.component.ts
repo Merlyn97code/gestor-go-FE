@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, model, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, model, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -16,11 +16,13 @@ import {MatCardModule} from '@angular/material/card';
 })
 export class MontViewComponent {
   @Input() appointments: any[] = [];
+  @Output() selectedDate = new EventEmitter<Date | null>();
+
   selected: Date | null = null;
 
 
     // Manejar la selección de la fecha
     onDateSelected(date: Date | null): void {
-      this.selected = date;
+      this.selectedDate.emit(date);
     }
 }

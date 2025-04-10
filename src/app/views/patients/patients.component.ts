@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { PatientsService } from '../../services/patients.service';
+import { PatientData } from '../../models/patients';
+import { PatientDetailsComponent } from '../patient-details/patient-details.component';
 
 @Component({
   selector: 'app-patients',
@@ -17,43 +20,45 @@ import { RouterModule } from '@angular/router';
   standalone: true
 })
 export class PatientsComponent {
-  patients!: Array<any>;
-  selectedPatient: any = null;
+
+  patients!: Array<PatientData>;
+  selectedPatient!: PatientData;
   isModalOpen = false;
   isEdit = false;
   patientForm = { id: 0, name: '', age: 0, gender: '', medicalHistory: '' };
   searchQuery = '';
   
-  patientsData = [
-    { id: 1, name: 'Juan Pérez', age: 30, gender: 'Male', medicalHistory: 'Alergias', appointments: [{ date: '2023-06-15', description: 'Consulta general' }], documents: [{ name: 'Receta médica', url: 'http://example.com/receta' }] },
-    { id: 2, name: 'María García', age: 25, gender: 'Female', medicalHistory: 'Dolor de cabeza', appointments: [{ date: '2023-07-10', description: 'Consulta de neurología' }], documents: [{ name: 'Examen de sangre', url: 'http://example.com/examen' }] }
-  ];
-
+  constructor(private patientsService: PatientsService, private router: Router){}
   ngOnInit() {
-    this.patients = this.patientsData;
+
+    this.patientsService
+    .getAllPatientsByUserId()
+    .subscribe(patients => {
+      this.patients = patients;
+    });
   }
 
   searchPatients() {
     if (this.searchQuery) {
-      this.patients = this.patientsData.filter(patient => patient.name.includes(this.searchQuery) || patient.id.toString().includes(this.searchQuery));
+      //this.patients = this.patientsData.filter(patient => patient.name.includes(this.searchQuery) || patient.id.toString().includes(this.searchQuery));
     }
   }
 
   resetSearch() {
     this.searchQuery = '';
-    this.patients = this.patientsData;
+    //this.patients = this.patientsData;
   }
 
-  viewPatientDetails(patient: any) {
-    this.selectedPatient = patient;
+  viewPatientDetails(patient: PatientData) {    
+    this.router.navigate(['patient-details', patient.patientId]);
   }
 
   scheduleAppointment() {
-    alert(`Agendar cita para ${this.selectedPatient.name}`);
+    //alert(`Agendar cita para ${this.selectedPatient.name}`);
   }
 
   closeDetails() {
-    this.selectedPatient = null;
+    //this.selectedPatient = null;
   }
 
   editPatient(patient: any) {
@@ -63,17 +68,19 @@ export class PatientsComponent {
   }
 
   savePatient() {
+    /*
     if (this.isEdit) {
       const index = this.patients.findIndex(patient => patient.id === this.patientForm.id);
       if (index > -1) {
-        this.patients[index] = { ...this.patientForm };
+        //this.patients[index] = { ...this.patientForm };
       }
     } else {
       const newId = this.patients.length + 1;
       const newPatient = { ...this.patientForm, id: newId };
-      this.patients.push(newPatient);
+      //this.patients.push(newPatient);
     }
     this.closeModal();
+    */
   }
 
   closeModal() {
@@ -82,6 +89,10 @@ export class PatientsComponent {
   }
 
   deletePatient(id: number) {
-    this.patients = this.patients.filter(patient => patient.id !== id);
+    //this.patients = this.patients.filter(patient => patient.id !== id);
   }
+
+  getFullName(patient: PatientData) {
+      return patient?.person?.firstName + ' ' + patient?.person?.lastName
+    }
 }

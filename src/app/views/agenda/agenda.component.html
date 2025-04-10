@@ -1,42 +1,31 @@
+
 <div class="agenda-container">
-  <div class="filters-section">
-    <mat-form-field class="filter-field" appearance="outline">
-      <mat-label>Paciente</mat-label>
-      <input
-        type="text"
-        matInput
-        [formControl]="pacienteControl"
-        [matAutocomplete]="autoPaciente"
-        placeholder="Seleccione un paciente"
-      />
-      <mat-autocomplete #autoPaciente="matAutocomplete" (optionSelected)="onPacienteSelected($event)">
-        <mat-option *ngFor="let paciente of (filteredPacientes | async) ?? []" [value]="paciente.name">
-          {{ paciente.name }}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
-  </div>
-
-  <div class="calendar-section">
-    <div class="calendar-view">
-      <app-mont-view [appointments]="appointments"></app-mont-view>
+  <div class="header"></div>
+  <div class="agenda-grid">
+    <div class="time-column">
+      <div class="time-slot" *ngFor="let hora of horasDia">{{ hora }}</div>
+    </div>
+    <div class="day-column" *ngFor="let dia of diasSemana">
+      <div class="day-header">{{ dia | date:'EEE dd/MM' }}</div>
+      <div
+        class="time-slot"
+        *ngFor="let hora of horasDia"
+        (click)="abrirModalNuevaReserva(dia, hora)"
+        [ngClass]="{'has-cita': obtenerCitaEnHora(dia, hora, citas)}"
+      >
+        <div class="cita" *ngIf="obtenerCitaEnHora(dia, hora, citas)">
+          {{ obtenerCitaEnHora(dia, hora, citas)?.nombrePaciente }}
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="add-appointment">
-    <button class="primary-btn" (click)="openAppointmentModal()">Añadir Cita</button>
-  </div>
-
-  <div class="appointment-details" *ngIf="selectedAppointment">
-    <h3>Detalles de la Cita</h3>
-    <p><strong>Hora:</strong> {{ selectedAppointment.time }}</p>
-    <p><strong>Paciente:</strong> {{ selectedAppointment.paciente }}</p>
-    <p><strong>Motivo:</strong> {{ selectedAppointment.motivo }}</p>
-    <p><strong>Notas:</strong> {{ selectedAppointment.notes || 'Sin notas' }}</p>
-    <div class="appointment-actions">
-      <button class="secondary-btn" (click)="editAppointment(selectedAppointment)">Editar</button>
-      <button class="danger-btn" (click)="deleteAppointment(selectedAppointment)">Eliminar</button>
-    </div>
-  </div>
+  <app-new-reservation
+    *ngIf="isModalOpen"
+    [selectedDate]="selectedDateForModal"
+    [selectedTime]="selectedTimeForModal"
+    [patientId]="patientId"
+    (closeModal)="cerrarModalNuevaReserva()"
+    (reservaGuardada)="guardarNuevaReserva($event)"
+  ></app-new-reservation>
 </div>

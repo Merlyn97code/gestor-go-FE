@@ -1,0 +1,16 @@
+.patient-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  mat-card {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  button {
+    margin-right: 10px;
+  }
+  

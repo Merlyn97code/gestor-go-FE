@@ -1,0 +1,82 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Nueva reserva</h2>
+      <button (click)="onCloseModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+          <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="reservaForm">
+        <div class="form-group">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" formControlName="fecha" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="horaInicio">Hora Inicio</label>
+          <input type="time" id="horaInicio" formControlName="horaInicio" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="horaFin">Hora Fin</label>
+          <input type="time" id="horaFin" formControlName="horaFin" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="pacientes">Pacientes</label>
+          <div class="selected-patients">
+            <span *ngFor="let patient of selectedPatients" class="patient-tag">
+              {{ getPatientDisplayName(patient) }}
+              <button type="button" (click)="removePatient(patient)" class="remove-patient">x</button>
+            </span>
+          </div>
+          <input
+            type="text"
+            id="searchPaciente"
+            formControlName="searchPaciente"
+            class="form-control"
+            placeholder="Buscar paciente por nombre, teléfono, email"
+          >
+          <ul *ngIf="searchResults$ | async as results" class="list-group search-results">
+            <li *ngFor="let patient of results" class="list-group-item" (click)="selectPatient(patient)">
+              {{ getPatientDisplayName(patient) }}
+              <small *ngIf="patient.person?.email">({{ patient.person?.email }})</small>
+            </li>
+            <li *ngIf="(searchResults$ | async)?.length === 0 && reservaForm.get('searchPaciente')?.value" class="list-group-item disabled">
+              No se encontraron pacientes.
+            </li>
+          </ul>
+          <button type="button">Agregar un nuevo paciente</button>
+        </div>
+        <div class="form-group">
+          <label for="profesional">Profesional</label>
+          <select id="profesional" formControlName="profesional" class="form-control">
+            <option *ngFor="let profesional of profesionales" [value]="profesional.id">{{ profesional.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="servicio">Servicio</label>
+          <select id="servicio" formControlName="servicio" class="form-control">
+            <option *ngFor="let servicio of servicios" [value]="servicio.id">{{ servicio.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="precio">Precio</label>
+          <input type="number" id="precio" formControlName="precio" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label for="repetirReserva">Repetir esta reserva</label>
+          <input type="checkbox" id="repetirReserva" formControlName="repetirReserva">
+        </div>
+        <div class="form-group">
+          <label for="informacionAdicional">Información adicional</label>
+          <textarea id="informacionAdicional" formControlName="informacionAdicional" class="form-control"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" (click)="onCloseModal()">Cancelar</button>
+      <button type="button" (click)="onGuardarReserva()" [disabled]="reservaForm.invalid">Guardar reserva</button>
+    </div>
+  </div>
+</div>

@@ -1,96 +1,175 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MontViewComponent } from '../../components/mont-view/mont-view.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import { map, Observable, startWith } from 'rxjs';
-import { MatInputModule } from '@angular/material/input';
-import {MatIconModule} from '@angular/material/icon';
-import { MatOptionModule } from '@angular/material/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AppintmentModalComponent } from '../appontment-modal/appointment-modal.component';
-
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatOptionModule } from '@angular/material/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Appointment } from '../../models/appointment';
+import { AppointmentsService } from '../../services/appointments.service';
+import { NewReservationComponent } from '../new-reservation/new-reservation.component';
+import { MontViewComponent } from '../../components/mont-view/mont-view.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-agenda',
-  imports: [    FormsModule, CommonModule, MontViewComponent, MatFormFieldModule, MatAutocompleteModule, 
-    ReactiveFormsModule, MatInputModule, MatIconModule, MatOptionModule, MatButtonModule, MatDialogModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MontViewComponent,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatIconModule,
+    MatOptionModule,
+    MatButtonModule,
+    MatDialogModule,
+    RouterModule,
+    NewReservationComponent,
+  ],
   templateUrl: './agenda.component.html',
   styleUrl: './agenda.component.scss',
-  standalone: true
+  standalone: true,
 })
-export class AgendaComponent implements OnInit {  medicos = [{ name: 'Dr. Juan Pérez' }, { name: 'Dr. Ana García' }];
-pacientes = [{ name: 'Carlos Martínez' }, { name: 'Luisa Rodríguez' }];
-especialidades = [{ name: 'Cardiología' }, { name: 'Pediatría' }];
+export class AgendaComponent implements OnInit, OnDestroy {
+  patientId!: number;
+  fechaActual: Date = new Date();
+  diasSemana: Date[] = [];
+  horasDia: string[] = [
+    '09:00', '10:00', '11:00', '12:00', '13:00', '14:00',
+    '15:00', '16:00', '17:00', '18:00', '19:00',
+  ];
+  citas: any[] = [];
+  isModalOpen: boolean = false;
+  selectedDateForModal: Date | null = null;
+  selectedTimeForModal: string | null = null;
 
-selectedMedico!: string;
-selectedPaciente!: string;
-selectedEspecialidad!: string;
+  private routeSubscription: Subscription | undefined;
+  private appointmentSubscription: Subscription | undefined;
+  private saveAppointmentSubscription: Subscription | undefined;
 
-appointments = [
-  { time: '10:00 AM', paciente: 'Carlos Martínez', motivo: 'Consulta general' },
-  { time: '11:00 AM', paciente: 'Luisa Rodríguez', motivo: 'Chequeo rutinario' }
-];
+  constructor(
+    private route: ActivatedRoute,
+    private appointmentService: AppointmentsService
+  ) {}
 
-selectedAppointment: any = null;
-filteredPacientes: Observable<any> | undefined;
-pacienteControl = new FormControl('');
-appointmentForm!: FormGroup;
-isModalOpen = false; // Variable para controlar la visibilidad del modal
+  ngOnInit(): void {
+    this.cargarSemana();
+    this.cargarCitasDeLaSemana();
 
-constructor(public dialog: MatDialog) {}
+    this.routeSubscription = this.route.params.subscribe(params => {
+      this.patientId = params['id'] ? +params['id'] : 0;
+      // Puedes realizar alguna acción si el ID cambia aquí, como recargar citas para el paciente.
+    });
+  }
 
-ngOnInit() {
-  this.filteredPacientes = this.pacienteControl.valueChanges.pipe(
-    startWith(''),
-    map(value => value ? this._filter(value, this.pacientes) : [])
-  );
-
-  this.appointmentForm = new FormGroup({
-    time: new FormControl(''),
-    notes: new FormControl('')
-  });
-}
-
-private _filter(value: string, list: any[]): any[] {
-  const filterValue = value.toLowerCase();
-  return list.filter(item => item.name.toLowerCase().includes(filterValue));
-}
-
-openAppointmentModal() {
-  const dialogRef = this.dialog.open(AppintmentModalComponent, {
-    width: '400px',
-    data: this.appointmentForm.value
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.appointments.push(result);
+  ngOnDestroy(): void {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
     }
-  });
-}
+    if (this.appointmentSubscription) {
+      this.appointmentSubscription.unsubscribe();
+    }
+    if (this.saveAppointmentSubscription) {
+      this.saveAppointmentSubscription.unsubscribe();
+    }
+  }
 
-selectAppointment(appointment: any) {
-  this.selectedAppointment = appointment;
-}
+  cargarSemana(): void {
+    this.diasSemana = [];
+    const primerDiaSemana = this.obtenerPrimerDiaDeLaSemana(this.fechaActual);
+    for (let i = 0; i < 7; i++) {
+      const dia = new Date(primerDiaSemana);
+      dia.setDate(primerDiaSemana.getDate() + i);
+      this.diasSemana.push(dia);
+    }
+  }
 
-editAppointment(appointment: any) {
-  console.log('Editar cita', appointment);
-}
+  obtenerPrimerDiaDeLaSemana(date: Date): Date {
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(date.setDate(diff));
+  }
 
-deleteAppointment(appointment: any) {
-  this.appointments = this.appointments.filter(a => a !== appointment);
-}
+  navegarSemana(delta: number): void {
+    const primerDiaActual = this.diasSemana[0];
+    const nuevoPrimerDia = new Date(primerDiaActual);
+    nuevoPrimerDia.setDate(primerDiaActual.getDate() + delta * 7);
+    this.fechaActual = nuevoPrimerDia;
+    this.cargarSemana();
+    this.cargarCitasDeLaSemana();
+  }
 
-onPacienteSelected(event: any) {
-  console.log('Paciente seleccionado:', event.option.value);
-}
+  cargarCitasDeLaSemana(): void {
+    if (this.appointmentSubscription) {
+      this.appointmentSubscription.unsubscribe();
+    }
+    this.appointmentSubscription = this.appointmentService.getAllAppointment().subscribe(
+      appointmets => {
+        this.citas = appointmets.map(appointmet => {
+          // Asumiendo que appointmentStart es un string en formato ISO 8601 o similar
+          const startDateTime = new Date(appointmet.appointmentStart);
+          const endDateTime = new Date(appointmet.appointmentEnd);
+  
+          return {
+            id: appointmet.appointmentId,
+            start: startDateTime,
+            end: endDateTime,
+            nombrePaciente: appointmet.patient.person?.firstName || 'test',
+          };
+        });
+      }
+    );
+  }
 
+  obtenerCitaEnHora(dia: Date, hora: string, citas: any[]): any | undefined {
+    const [horaInicioSlot] = hora.split(':').map(Number);
+    const inicioDiaSlot = new Date(dia);
+    inicioDiaSlot.setHours(horaInicioSlot, 0, 0, 0);
 
-closeAppointmentModal() {
-  this.isModalOpen = false;
-}
+    const finDiaSlot = new Date(dia);
+    finDiaSlot.setHours(horaInicioSlot + 1, 0, 0, 0);
 
+    return citas.find(cita => {
+      const horaInicioCita = cita.start.getHours();
+      return horaInicioCita === horaInicioSlot && cita.start >= inicioDiaSlot && cita.start < finDiaSlot;
+    });
+  }
+
+  abrirModalNuevaReserva(dia: Date, hora: string): void {
+    this.isModalOpen = true;
+    this.selectedDateForModal = dia;
+    this.selectedTimeForModal = hora;
+  }
+
+  cerrarModalNuevaReserva(): void {
+    this.isModalOpen = false;
+    this.selectedDateForModal = null;
+    this.selectedTimeForModal = null;
+  }
+
+  guardarNuevaReserva(reservaData: any): void {
+    console.log('====================================');
+    console.log("reserva data ", reservaData);
+    console.log('====================================');
+    const body: Appointment = {
+      patient: {
+        patientId: this.patientId,
+      },
+      appointmentStart: reservaData.appointmentStart,
+      appointmentEnd: reservaData.appointmentEnd
+    };
+
+    if (this.saveAppointmentSubscription) {
+      this.saveAppointmentSubscription.unsubscribe();
+    }
+    this.saveAppointmentSubscription = this.appointmentService.saveAppointment(body).subscribe(() => {
+      this.cargarCitasDeLaSemana();
+    });
+  }
 }

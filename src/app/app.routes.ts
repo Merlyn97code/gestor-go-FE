@@ -6,6 +6,7 @@ import { PatientsComponent } from './views/patients/patients.component';
 import { RegisterComponent } from './views/register/register.component';
 import { WelcomeComponent } from './views/welcome/welcome.component';
 import { CreatePatientComponent } from './views/create-patient/create-patient.component';
+import { PatientDetailsComponent } from './views/patient-details/patient-details.component';
 
 export const routes: Routes = [
     {
@@ -17,9 +18,13 @@ export const routes: Routes = [
         component: DashboardComponent
     },
     {
+        path: 'agenda/:id',
+        component: AgendaComponent
+    },    
+    {
         path: 'agenda',
         component: AgendaComponent
-    },
+    },    
     {
         path: 'pacientes',
         component: PatientsComponent
@@ -35,5 +40,9 @@ export const routes: Routes = [
     {
         path: 'patient',
         component: CreatePatientComponent
+    },
+    {
+        path: 'patient-details/:id',
+        component: PatientDetailsComponent
     }
 ];

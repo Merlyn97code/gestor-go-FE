@@ -1,67 +1,51 @@
 <div class="patients-container">
-  <!-- Barra de búsqueda avanzada -->
   <div class="search-bar">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar paciente por nombre o ID" />
-    <button (click)="searchPatients()">Buscar</button>
-    <button (click)="resetSearch()">Restablecer</button>
-    <button class="btn-secondary" routerLink="/patient">➕ Crear Paciente</button>
-
+    <mat-form-field appearance="outline">
+      <mat-label><mat-icon>search</mat-icon> Buscar paciente</mat-label>
+      <input matInput [(ngModel)]="searchQuery" placeholder="Nombre o ID" />
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="searchPatients()">Buscar</button>
+    <button mat-raised-button (click)="resetSearch()">Restablecer</button>
+    <button mat-raised-button color="accent" routerLink="/patient">
+      <mat-icon>person_add</mat-icon> Crear Paciente
+    </button>
   </div>
 
-  <!-- Listado de pacientes -->
   <div class="patients-list">
-    <div *ngFor="let patient of patients" class="patient-card">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{getFullName(patient)}}</mat-card-title>
-          <mat-card-subtitle>Edad: 7 | Género: M</mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <!--
-          <p><strong>ID:</strong> {{ patient.id }}</p>        
-          <p><strong>Historial Médico:</strong> {{ patient.medicalHistory }}</p>
-          <div *ngIf="patient.person.">
-            <h5>Citas Previas:</h5>
-            <ul>
-              <li *ngFor="let appointment of patient.appointments">{{ appointment.date }} - {{ appointment.description }}</li>
-            </ul>
-          </div>    
-          -->
-          <div class="action-buttons">          
-            <button mat-button [routerLink]="['/agenda', patient.patientId]">Agendar</button>          
-            <button mat-button (click)="viewPatientDetails(patient)">Ver Detalles</button>
-            <button mat-button (click)="editPatient(patient)">Editar</button>
-            <button mat-button color="warn" (click)="deletePatient(patient.patientId)">Eliminar</button>
+    <mat-card *ngFor="let patient of patients" class="patient-card">
+      <div class="patient-info">
+        <div class="patient-avatar">
+          <mat-icon class="avatar-icon">person</mat-icon> 
+        </div>
+        <div class="patient-details">
+          <div class="patient-name">{{ getFullName(patient) }}</div>
+          <div class="patient-meta">
+            <span>Edad: 10</span> | <span>Género: {{ getGenderDisplay(patient.person.gender) }}</span>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>  
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" [routerLink]="['/agenda', patient.patientId]">
+          <mat-icon>event</mat-icon> Agendar
+        </button>
+        <button mat-raised-button (click)="viewPatientDetails(patient)">
+          <mat-icon>visibility</mat-icon> Detalles
+        </button>
+        <button mat-raised-button color="accent" (click)="editPatient(patient)">
+          <mat-icon>edit</mat-icon> Editar
+        </button>
+        <button mat-raised-button color="warn" (click)="deletePatient(patient.patientId)">
+          <mat-icon>delete</mat-icon> Eliminar
+        </button>
+      </div>
+    </mat-card>
+  </div>
 
-  <!-- Modal para agregar o editar paciente -->
   <div class="add-edit-patient-modal" *ngIf="isModalOpen">
     <div class="modal-content">
       <h3>{{ isEdit ? 'Editar Paciente' : 'Agregar Paciente' }}</h3>
-      <form (ngSubmit)="savePatient()">
-        <label for="name">Nombre</label>
-        <input type="text" [(ngModel)]="patientForm.name" name="name" required />
-
-        <label for="age">Edad</label>
-        <input type="number" [(ngModel)]="patientForm.age" name="age" required />
-
-        <label for="gender">Género</label>
-        <select [(ngModel)]="patientForm.gender" name="gender" required>
-          <option value="Male">Masculino</option>
-          <option value="Female">Femenino</option>
-        </select>
-
-        <label for="medicalHistory">Historial Médico</label>
-        <textarea [(ngModel)]="patientForm.medicalHistory" name="medicalHistory"></textarea>
-
-        <button type="submit">{{ isEdit ? 'Guardar Cambios' : 'Agregar Paciente' }}</button>
-      </form>
-      <button (click)="closeModal()">Cancelar</button>
+      <form (ngSubmit)="savePatient()" class="patient-form">
+        </form>
     </div>
   </div>
 </div>

@@ -2,9 +2,17 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PatientsService } from '../../services/patients.service';
-import { debounceTime, distinctUntilChanged, filter, Observable, Subject, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, Observable, Subject, switchMap, of } from 'rxjs';
 import { Patient } from '../../models/patients'; // Asegúrate de que la ruta sea correcta
 import { AppointmentsService } from '../../services/appointments.service';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 interface Profesional {
   id: number;
@@ -19,7 +27,17 @@ interface Servicio {
 
 @Component({
   selector: 'app-new-reservation',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MatInputModule, CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatIconModule,
+    MatAutocompleteModule
+  ],
   templateUrl: './new-reservation.component.html',
   styleUrl: './new-reservation.component.scss',
   standalone: true
@@ -29,27 +47,27 @@ export class NewReservationComponent implements OnInit {
   @Input() patientId!: number | null;
   @Input() selectedDate: Date | null = null;
   @Input() selectedTime: string | null = null;
+  @Input() fromUrl: boolean = false;
   @Output() closeModal = new EventEmitter<void>();
   @Output() reservaGuardada = new EventEmitter<any>();
   searchResults$!: Observable<Patient[]> | undefined;
-  private searchTerms$ = new Subject<string>();
+  filteredPatients$!: Observable<Patient[]>;
   reservaForm: FormGroup;
   profesionales: Profesional[] = [
     { id: 1, nombre: 'Merlyn' }
   ];
   servicios: Servicio[] = [
-    { id: 1, nombre: 'Consulta Médica', precio: 5250 }
+    { id: 1, nombre: 'Consulta', precio: 900 }
   ];
 
-  selectedPatients: Patient[] = [];
+  selectedPatient: Patient | null = null; // Cambiado a un solo paciente
   constructor(private fb: FormBuilder, private patientService: PatientsService, private appointmentService: AppointmentsService) {
     this.reservaForm = this.fb.group({
       fecha: [null, Validators.required],
       horaInicio: [null, Validators.required],
       horaFin: [null, Validators.required],
-      pacientes: [[], Validators.required],
-      searchPaciente: [''],
-      profesional: [null, Validators.required],
+      pacientes: [null, Validators.required], // Cambiado a un solo paciente
+      searchPaciente: [''],      
       servicio: [null, Validators.required],
       repetirReserva: [false],
       informacionAdicional: [''],
@@ -87,20 +105,24 @@ export class NewReservationComponent implements OnInit {
     );
 
     if (this.patientId) {
+      this.reservaForm.get('searchPaciente')
+      ?.disable({onlySelf: true});
       this.patientService.getPatientById(this.patientId)
         .subscribe(patient => {
-          this.selectedPatients = [patient];
-          this.reservaForm.get('pacientes')?.patchValue(this.selectedPatients);
+          this.selectedPatient = patient;
+          this.reservaForm.get('pacientes')?.patchValue(patient);
+          this.reservaForm.get('searchPaciente')?.setValue(this.getPatientDisplayName(patient));
         });
     } else {
-      this.reservaForm.get('pacientes')?.patchValue([]);
+      this.reservaForm.get('pacientes')?.patchValue(null);
+      this.reservaForm.get('searchPaciente')?.setValue('');
     }
   }
 
   onCloseModal(): void {
     this.closeModal.emit();
     this.reservaForm.reset();
-    this.selectedPatients = [];
+    this.selectedPatient = null;
   }
 
   onGuardarReserva(): void {
@@ -108,23 +130,20 @@ export class NewReservationComponent implements OnInit {
       const fecha = this.reservaForm.get('fecha')?.value;
       const horaInicio = this.reservaForm.get('horaInicio')?.value;
       const horaFin = this.reservaForm.get('horaFin')?.value;
-      const pacientes = this.reservaForm.get('pacientes')?.value;
+      const paciente = this.reservaForm.get('pacientes')?.value;
 
-      if (fecha && horaInicio && horaFin && pacientes.length > 0 && this.patientId) {
+      if (fecha && horaInicio && horaFin && paciente) {
         const [startHour, startMinute] = horaInicio.split(':').map(Number);
         const [endHour, endMinute] = horaFin.split(':').map(Number);
 
         const appointmentStart = new Date(fecha);
-        console.log('====================================');
-        console.log("fecha ", fecha);
-        console.log('====================================');
         appointmentStart.setHours(startHour, startMinute, 0, 0);
 
         const appointmentEnd = new Date(fecha);
         appointmentEnd.setHours(endHour, endMinute, 0, 0);
 
         const newReservationData = {
-          patientId: this.patientId,
+          patientId: this.patientId ? this.patientId : this.selectedPatient?.patientId,
           appointmentStart: appointmentStart, // Envía en formato ISO 8601
           appointmentEnd: appointmentEnd
           // Otros datos del formulario si son necesarios
@@ -141,16 +160,15 @@ export class NewReservationComponent implements OnInit {
   }
 
   selectPatient(patient: Patient): void {
-    if (!this.selectedPatients.some(p => p.patientId === patient.patientId)) {
-      this.selectedPatients = [...this.selectedPatients, patient];
-      this.reservaForm.get('pacientes')?.setValue(this.selectedPatients);
-      this.reservaForm.get('searchPaciente')?.setValue('');
-    }  
+    this.selectedPatient = patient;
+    this.reservaForm.get('pacientes')?.setValue(patient);
+    this.reservaForm.get('searchPaciente')?.setValue(''); 
   }
 
-  removePatient(patient: Patient): void {
-    this.selectedPatients = this.selectedPatients.filter(p => p.patientId !== patient.patientId);
-    this.reservaForm.get('pacientes')?.setValue(this.selectedPatients);
+  removePatient(): void {
+    this.selectedPatient = null;
+    this.reservaForm.get('pacientes')?.setValue(null);
+    this.reservaForm.get('searchPaciente')?.setValue('');
   }
 
   getPatientDisplayName(patient: Patient): string {

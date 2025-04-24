@@ -1,0 +1,22 @@
+<mat-card class="patient-details-card" *ngIf="selectedConsultation" #consultationCard>
+    <div class="consultations-section">
+      <div class="consultation-details">
+        <h4>Detalles de la Consulta</h4>
+        <div class="chalkboard">
+          <table class="consultation-table">
+            <tr>
+              <td><strong>Motivo:</strong></td>
+              <td>{{ selectedConsultation.reason }}</td>
+            </tr>
+            <tr>
+              <td><strong>Detalle:</strong></td>
+              <td>{{ selectedConsultation.details }}</td>
+            </tr>
+          </table>
+          <div class="post-it" style="transform: rotate(1deg);">
+            <p><strong>Notas:</strong> {{ selectedConsultation.notes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card>

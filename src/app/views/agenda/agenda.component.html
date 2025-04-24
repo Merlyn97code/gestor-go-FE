@@ -1,30 +1,88 @@
-
 <div class="agenda-container">
-  <div class="header"></div>
-  <div class="agenda-grid">
+  <div class="header">
+    <button (click)="navegarSemana(-1)" class="nav-button">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <h2 class="week-title">
+      Semana del {{ diasSemana[0] | date:'dd/MM/yyyy' }} al {{ diasSemana[6] | date:'dd/MM/yyyy' }}
+    </h2>
+    <button (click)="navegarSemana(1)" class="nav-button">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Filtrar por Paciente</mat-label>
+      <input matInput type="text" [(ngModel)]="patientFilter">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="agenda-grid-container">
     <div class="time-column">
+      <div class="time-slot header-cell padding-0">
+        <mat-icon>calendar_today</mat-icon>
+      </div>
       <div class="time-slot" *ngFor="let hora of horasDia">{{ hora }}</div>
     </div>
-    <div class="day-column" *ngFor="let dia of diasSemana">
-      <div class="day-header">{{ dia | date:'EEE dd/MM' }}</div>
-      <div
-        class="time-slot"
-        *ngFor="let hora of horasDia"
-        (click)="abrirModalNuevaReserva(dia, hora)"
-        [ngClass]="{'has-cita': obtenerCitaEnHora(dia, hora, citas)}"
-      >
-        <div class="cita" *ngIf="obtenerCitaEnHora(dia, hora, citas)">
-          {{ obtenerCitaEnHora(dia, hora, citas)?.nombrePaciente }}
+    <div class="days-container">
+      <div class="day-column header-cell" *ngFor="let dia of diasSemana">
+        {{ dia | date:'EEE dd/MM' }}
+      </div>
+      <div class="day-column" *ngFor="let dia of diasSemana">
+        <div
+          class="time-slot cita-container"
+          *ngFor="let hora of horasDia"
+          [ngClass]="{
+            'break-time': esHoraDeDescanso(dia, hora),
+            'non-working-day': esDiaNoLaborable(dia),
+            'has-cita': obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter)
+          }"
+          [attr.disabled]="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) ? true : null"
+          (click)="!obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) && abrirModalNuevaReserva(dia, hora)"
+        >
+          <div
+            *ngIf="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) as citaDetalle"
+            class="cita-block"
+            [style.top.%]="citaDetalle.topPercentage"
+            [style.height.%]="citaDetalle.heightPercentage"
+          >
+            <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }}</span>
+            <button
+              (click)="$event.stopPropagation()"
+              mat-icon-button
+              aria-label="Ver opciones"
+            >
+              <mat-icon [matMenuTriggerFor]="citaMenu">more_vert</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <mat-menu #citaMenu="matMenu">
+    <button mat-menu-item>
+      <mat-icon>dialpad</mat-icon>
+      <span>Redial</span>
+    </button>
+    <button mat-menu-item disabled>
+      <mat-icon>voicemail</mat-icon>
+      <span>Check voice mail</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>notifications_off</mat-icon>
+      <span>Disable alerts</span>
+    </button>
+  </mat-menu>
 
   <app-new-reservation
     *ngIf="isModalOpen"
     [selectedDate]="selectedDateForModal"
     [selectedTime]="selectedTimeForModal"
     [patientId]="patientId"
+    [fromUrl]="fromUrl"
     (closeModal)="cerrarModalNuevaReserva()"
     (reservaGuardada)="guardarNuevaReserva($event)"
   ></app-new-reservation>

@@ -6,15 +6,21 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { PatientsService } from '../../services/patients.service';
-import { PatientData } from '../../models/patients';
+import { Gender, PatientData } from '../../models/patients';
 import { PatientDetailsComponent } from '../patient-details/patient-details.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-patients',
   imports: [CommonModule, FormsModule, MatCardModule,
     MatButtonModule,
     MatIconModule,
-  RouterModule],
+  RouterModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule],
   templateUrl: './patients.component.html',
   styleUrl: './patients.component.scss',
   standalone: true
@@ -92,7 +98,46 @@ export class PatientsComponent {
     //this.patients = this.patients.filter(patient => patient.id !== id);
   }
 
+
   getFullName(patient: PatientData) {
-      return patient?.person?.firstName + ' ' + patient?.person?.lastName
+      const first = patient?.person.firstName ? patient?.person.firstName : '';
+      const last = patient?.person.lastName ? patient?.person.lastName : '';
+      const mother = patient?.person.motherLastName ? patient?.person.motherLastName : '';
+    
+      let fullName = '';
+    
+      if (first) {
+        fullName += first;
+      }
+    
+      if (last) {
+        if (fullName) {
+          fullName += ' ';
+        }
+        fullName += last;
+      }
+    
+      if (mother) {
+        if (fullName) {
+          fullName += ' ';
+        }
+        fullName += mother;
+      }
+    
+      return fullName;
     }
+
+    // En tu componente TypeScript:
+getGenderDisplay(gender: Gender): string {
+  switch (gender) {
+    case 'male':
+      return 'Masculino';
+    case 'female':
+      return 'Femenino';
+    case 'other':
+      return 'Otro';
+    default:
+      return '';
+  }
+}
 }

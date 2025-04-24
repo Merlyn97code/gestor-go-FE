@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { PatientsService } from '../../services/patients.service';
 import { Patient, Person } from '../../models/patients';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-create-patient',
@@ -20,7 +22,9 @@ import { Patient, Person } from '../../models/patients';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    RouterModule
+    RouterModule,
+    MatIconModule,
+    MatSelectModule
   ],
   templateUrl: './create-patient.component.html',
   styleUrl: './create-patient.component.scss'
@@ -33,9 +37,11 @@ export class CreatePatientComponent {
     this.patientForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
+      motherLastName: [''],
       phone: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      address: ['', Validators.required]
+      email: ['', [Validators.email]],
+      address: [''],
+      gender: ['', Validators.required]
     });
   }
 

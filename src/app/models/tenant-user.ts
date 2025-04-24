@@ -3,7 +3,8 @@ export interface Tenant {
   phone: string,
   whatsAppNumber: string,
   email: string,
-  address: string
+  address: string,
+  businessSchedules?: BusinessSchedule[];
 }
 
 export interface Person {
@@ -25,5 +26,15 @@ export interface Register {
   tenant: Tenant,
   person: Person,
   userEntity: User
-  token?: string
+  token?: string,
+}
+
+export interface BusinessSchedule {
+  dayOfWeek: string;
+  openTime: string;
+  closeTime: string;
+  breakStartTime: string;
+  breakEndTime: string;
+  specialSchedule: string;
+  nonWorkingDay: boolean;
 }

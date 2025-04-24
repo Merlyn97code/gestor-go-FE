@@ -1,16 +1,243 @@
-.patient-info {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.patient-details-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e0f2f7, #cce0e8);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   }
-  
-  mat-card {
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
+}
+
+.patient-details-container {
+  padding: 20px;
+}
+
+.patient-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.patient-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.avatar-icon {
+  font-size: 40px;
+  color: #888;
+}
+
+.patient-name-age {
+  flex-grow: 1;
+}
+
+.patient-name {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.patient-age {
+  font-size: 1em;
+  color: #666;
+}
+
+.patient-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.patient-actions {
+  padding: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.consultations-section {
+  margin-top: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+mat-icon[mat-list-icon] {
+  color: #999;
+}
+
+
+
+
+.consultations-list {
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.consultation-item {
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  padding: 16px;
+  transition: background-color 0.3s ease;
+  display: flex; /* Asegura que los elementos se alineen correctamente */
+  align-items: center; /* Centra verticalmente los elementos */
+  justify-content: space-between; /* Distribuye el espacio entre los elementos */
+  height: auto !important;
+  &:last-child {
+    border-bottom: none;
   }
-  
-  button {
-    margin-right: 10px;
+
+  &:hover {
+    background-color: #f9f9f9;
   }
-  
+}
+
+.consultation-content {
+  display: flex;
+  align-items: center;
+}
+
+.container-data {
+  display: flex;
+  flex-direction: column;
+}
+.consultation-reason {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.consultation-date {
+  color: #666;
+}
+
+mat-icon[mat-list-icon] {
+  color: #999;
+}
+
+.consultation-details {
+  margin-top: 20px;
+}
+
+.post-it {
+  background-color: #fffacd; /* Amarillo claro, similar a un post-it */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  position: relative;
+  transform: rotate(2deg); /* Ligeramente rotado para simular un post-it */
+  margin-top: 10px; /* Agrega espacio entre los detalles y el post-it */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    background-color: #fffacd;
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+.chalkboard {
+  background-color: #4a4a4a; /* Color de pizarrón */
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Cambiado a columna para organizar tabla y post-it */
+  position: relative;
+}
+
+.consultation-table {
+  width: 100%;
+  color: white; /* Texto blanco para el pizarrón */
+  margin-bottom: 20px; /* Espacio entre la tabla y el post-it */
+}
+
+.consultation-table td {
+  padding: 8px;
+  vertical-align: top;
+}
+
+.consultation-table strong {
+  font-weight: bold;
+}
+
+.post-it {
+  background-color: #fffacd; /* Amarillo claro, similar a un post-it */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  margin: 10px auto; /* Centrado horizontalmente */
+  width: 200px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    background-color: #fffacd;
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+}
+
+.post-it p {
+  margin-bottom: 0;
+}
+
+.post-it strong {
+  font-weight: bold;
+}

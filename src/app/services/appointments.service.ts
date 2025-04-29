@@ -21,4 +21,16 @@ export class AppointmentsService extends ApiService{
    getAllAppointment():Observable<Array<Appointment>> {
     return this.get<Array<Appointment>>('');
    }
+
+   getTodayAppointments() {
+    return this.get<Array<Appointment>>('/today');
+   }
+
+   getTomorrowAppointments() {
+    return this.get<Array<Appointment>>('/tomorrow');
+   }
+
+   getRemainingAppointments() {
+    return this.get<Array<Appointment>>('/remaining');
+   }
 }

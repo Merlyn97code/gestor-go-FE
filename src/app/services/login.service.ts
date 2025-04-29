@@ -15,6 +15,6 @@ export class LoginService extends ApiService{
    }
 
    login(credentials: Auth): Observable<Credentials> {
-    return this.post<Auth, Credentials>('auth', credentials);
+    return this.post<Auth, Credentials>('', credentials);
    }
 }

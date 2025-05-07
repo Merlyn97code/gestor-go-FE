@@ -11,6 +11,7 @@ import { PatientsService } from '../../services/patients.service';
 import { Patient, Person } from '../../models/patients';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-create-patient',
@@ -24,7 +25,8 @@ import { MatSelectModule } from '@angular/material/select';
     MatCardModule,
     RouterModule,
     MatIconModule,
-    MatSelectModule
+    MatSelectModule,
+    MatDatepickerModule
   ],
   templateUrl: './create-patient.component.html',
   styleUrl: './create-patient.component.scss'
@@ -41,7 +43,8 @@ export class CreatePatientComponent {
       phone: ['', Validators.required],
       email: ['', [Validators.email]],
       address: [''],
-      gender: ['', Validators.required]
+      gender: ['', Validators.required],
+      birthday: ['', Validators.required]
     });
   }
 

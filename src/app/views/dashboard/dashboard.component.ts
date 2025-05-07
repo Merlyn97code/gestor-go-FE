@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AppointmentsService } from '../../services/appointments.service';
+import { Appointment } from '../../models/appointment';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,11 +18,27 @@ export class DashboardComponent {
   consultasDia: number = 0;
   nextAppointments: number = 0;
   proximasConsultas: any[] = [];
-
-  constructor() { }
+  todayAppointments: Array<Appointment> = [];
+  tomorrowAppointments: Array<Appointment> = [];
+  remainingAppointments: Array<Appointment> = [];
+  appointmentSelected: Array<Appointment> = [];
+  title: string = 'Today';
+  constructor(private appointmentsService: AppointmentsService) { }
 
   ngOnInit(): void {
     // Aquí puedes inicializar los datos al cargar el componente.
+    this.appointmentsService.getTodayAppointments()
+    .subscribe(todayAppointments => {      
+      this.todayAppointments = todayAppointments;
+    });
+    this.appointmentsService.getTomorrowAppointments()
+    .subscribe(tomorrowAppointments => {      
+      this.tomorrowAppointments = tomorrowAppointments;    
+    });
+    this.appointmentsService.getRemainingAppointments()
+    .subscribe(remainingAppointments => {      
+      this.remainingAppointments = remainingAppointments;
+    });
     this.loadDashboardData();
   }
 
@@ -38,8 +56,12 @@ export class DashboardComponent {
   }
 
   // Método que se ejecuta al hacer clic en el botón de "Ver Consultas del Día"
-  verConsultasDia(): void {
-    console.log('Ver consultas del día');
+  verConsultasDia(): void {    
     // Aquí puedes redirigir a la vista de consultas o realizar alguna acción adicional
   }
+
+  changeAppointmentListSelected(title: string, appointments: Array<Appointment>) {
+    this.title = title;
+    this.appointmentSelected = appointments;
+    }
 }

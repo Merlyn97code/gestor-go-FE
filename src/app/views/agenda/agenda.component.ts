@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatOptionModule } from '@angular/material/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Appointment } from '../../models/appointment';
 import { AppointmentsService } from '../../services/appointments.service';
 import { NewReservationComponent } from '../new-reservation/new-reservation.component';
@@ -35,7 +35,8 @@ import {MatMenuModule} from '@angular/material/menu';
   MatDialogModule,
   RouterModule,
   NewReservationComponent,
-  MatMenuModule
+  MatMenuModule,
+  RouterModule
  ],
  templateUrl: './agenda.component.html',
  styleUrl: './agenda.component.scss',
@@ -55,12 +56,14 @@ export class AgendaComponent implements OnInit, OnDestroy {
  private routeSubscription: Subscription | undefined;
  private appointmentSubscription: Subscription | undefined;
  private saveAppointmentSubscription: Subscription | undefined;
- fromUrl: boolean = false;
+ fromUrl: boolean = false; 
+ lastPatientName: string | null = null;
 
  constructor(
   private route: ActivatedRoute,
   private appointmentService: AppointmentsService,
-  private businessScheduleService: BusinessScheduleService
+  private businessScheduleService: BusinessScheduleService,
+  private router: Router
  ) {}
 
  ngOnInit(): void {
@@ -93,14 +96,15 @@ export class AgendaComponent implements OnInit, OnDestroy {
  cargarHorasDia(): void {
   this.horasDia = [];
   for (let hour = 7; hour <= 22; hour++) {
-   const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
-   this.horasDia.push(formattedHour);
+    const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
+    this.horasDia.push(formattedHour);
   }
- }
+}
+
 
  cargarSemana(): void {
   this.diasSemana = [];
-  const primerDiaSemana = this.obtenerPrimerDiaDeLaSemana(this.fechaActual);
+  const primerDiaSemana = this.obtenerPrimerDiaDeLaSemana(this.fechaActual);  
   for (let i = 0; i < 7; i++) {
    const dia = new Date(primerDiaSemana);
    dia.setDate(primerDiaSemana.getDate() + i);
@@ -109,8 +113,8 @@ export class AgendaComponent implements OnInit, OnDestroy {
  }
 
  obtenerPrimerDiaDeLaSemana(date: Date): Date {
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const day = date.getDay();    
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);  
   return new Date(date.setDate(diff));
  }
 
@@ -131,13 +135,15 @@ export class AgendaComponent implements OnInit, OnDestroy {
    appointmets => {
     this.citas = appointmets.map(appointmet => {
      const startDateTime = new Date(appointmet.appointmentStart);
-     const endDateTime = new Date(appointmet.appointmentEnd);
-
+     const endDateTime = new Date(appointmet.appointmentEnd);      
+      
      return {
       id: appointmet.appointmentId,
       start: startDateTime,
       end: endDateTime,
-      nombrePaciente: appointmet.fullName || 'test',
+      nombrePaciente: appointmet.fullName || '',
+      patientId: appointmet.patientId,
+      service: appointmet.businessServiceEntity
      };
     });
    }
@@ -166,119 +172,138 @@ export class AgendaComponent implements OnInit, OnDestroy {
 }
 
 
- abrirModalNuevaReserva(dia: Date, hora: string): void {
+abrirModalNuevaReserva(dia: Date, hora: string): void {
   const citaExistente = this.obtenerCitaEnHora(dia, hora, this.citas, this.patientFilter);
 
   if (citaExistente) {
-   // Si hay una cita existente en este slot
-   const horaFinCita = citaExistente.end;
-   const minutosFinCita = horaFinCita.getMinutes();
-   let nuevaHoraInicio = new Date(horaFinCita);
+    const horaFinCita = citaExistente.end;
+    const nuevaHoraInicio = new Date(horaFinCita);
+    nuevaHoraInicio.setSeconds(0, 0);
 
-   if (minutosFinCita === 0) {
-    nuevaHoraInicio.setMinutes(30);
-   } else if (minutosFinCita > 0 && minutosFinCita <= 30) {
-    nuevaHoraInicio.setHours(horaFinCita.getHours() + 1, 0, 0, 0);
-   } else {
-    // Si la cita termina después de la media hora, la siguiente reserva sería en la hora siguiente
-    nuevaHoraInicio.setHours(horaFinCita.getHours() + 1, 0, 0, 0);
-   }
+    // Redondear hacia la próxima hora o media hora
+    const minutos = nuevaHoraInicio.getMinutes();
+    if (minutos === 0) {
+      nuevaHoraInicio.setMinutes(30);
+    } else {
+      nuevaHoraInicio.setHours(nuevaHoraInicio.getHours() + 1);
+      nuevaHoraInicio.setMinutes(0);
+    }
 
-   // Formatear la nueva hora de inicio al formato 'HH:mm'
-   const nuevaHoraInicioStr = `<span class="math-inline">\{nuevaHoraInicio\.getHours\(\)\.toString\(\)\.padStart\(2, '0'\)\}\:</span>{nuevaHoraInicio.getMinutes().toString().padStart(2, '0')}`;
+    const nuevaHoraInicioStr = `${nuevaHoraInicio.getHours().toString().padStart(2, '0')}:${nuevaHoraInicio.getMinutes().toString().padStart(2, '0')}`;
 
-   // Verificar si la nueva hora de inicio está dentro del horario de la agenda
-   const [horaInicioAgenda, minutosInicioAgenda] = this.horasDia[0].split(':').map(Number);
-   const [horaFinAgenda, minutosFinAgenda] = this.horasDia[this.horasDia.length - 1].split(':').map(Number);
+    // Verificar si está dentro del rango de la agenda
+    const [horaInicioAgenda, minutosInicioAgenda] = this.horasDia[0].split(':').map(Number);
+    const [horaFinAgenda, minutosFinAgenda] = this.horasDia[this.horasDia.length - 1].split(':').map(Number);
+    const nuevaHoraInicioNumero = this.convertirHoraANumero(nuevaHoraInicioStr);
+    const horaInicioAgendaNumero = horaInicioAgenda * 60 + minutosInicioAgenda;
+    const horaFinAgendaNumero = horaFinAgenda * 60 + minutosFinAgenda;
 
-   const nuevaHoraInicioNumero = this.convertirHoraANumero(nuevaHoraInicioStr);
-   const horaInicioAgendaNumero = horaInicioAgenda * 60 + minutosInicioAgenda;
-   const horaFinAgendaNumero = horaFinAgenda * 60 + minutosFinAgenda + 59; // Considerar hasta el final de la última hora
+    if (nuevaHoraInicioNumero >= horaInicioAgendaNumero && nuevaHoraInicioNumero <= horaFinAgendaNumero) {
+      const diaSemana = this.obtenerDiaSemanaString(dia);
+      const schedule = this.businessSchedules.find(s => s.dayOfWeek === diaSemana);
 
-   if (nuevaHoraInicioNumero >= horaInicioAgendaNumero && nuevaHoraInicioNumero <= horaFinAgendaNumero) {
-    this.isModalOpen = true;
-    this.selectedDateForModal = dia;
-    this.selectedTimeForModal = nuevaHoraInicioStr;
-   } else {
-    alert('No se puede crear una reserva fuera del horario de la agenda.');
-   }
+      if (schedule && schedule.breakStartTime && schedule.breakEndTime) {
+        const inicioDescanso = this.convertirHoraANumero(schedule.breakStartTime.substring(0, 5));
+        const finDescanso = this.convertirHoraANumero(schedule.breakEndTime.substring(0, 5));
 
-   return; // No abrir el modal con la hora original
+        if ((inicioDescanso < finDescanso && nuevaHoraInicioNumero >= inicioDescanso && nuevaHoraInicioNumero < finDescanso) ||
+            (inicioDescanso > finDescanso && (nuevaHoraInicioNumero >= inicioDescanso || nuevaHoraInicioNumero < finDescanso))) {
+          alert('La siguiente hora disponible cae dentro del descanso. No se puede reservar.');
+          return;
+        }
+      }
+
+      // Mostrar el modal con la siguiente hora disponible
+      this.isModalOpen = true;
+      this.selectedDateForModal = dia;
+      this.selectedTimeForModal = nuevaHoraInicioStr;
+    } else {
+      alert('No se puede crear una reserva fuera del horario de la agenda.');
+    }
+
+    return;
   }
 
-  // Si no hay cita existente, abrir el modal con la hora clickeada
+  // Si no hay cita, abrir directamente el modal si no está en descanso
   const diaSemana = this.obtenerDiaSemanaString(dia);
   const schedule = this.businessSchedules.find(s => s.dayOfWeek === diaSemana);
 
-  if (schedule) {
-   if (schedule.breakStartTime && schedule.breakEndTime) {
-    const horaInicioDescanso = schedule.breakStartTime.substring(0, 5);
-    const horaFinDescanso = schedule.breakEndTime.substring(0, 5);
-
+  if (schedule && schedule.breakStartTime && schedule.breakEndTime) {
     const horaSeleccionada = this.convertirHoraANumero(hora);
-    const inicioDescanso = this.convertirHoraANumero(horaInicioDescanso);
-    const finDescanso = this.convertirHoraANumero(horaFinDescanso);
+    const inicioDescanso = this.convertirHoraANumero(schedule.breakStartTime.substring(0, 5));
+    const finDescanso = this.convertirHoraANumero(schedule.breakEndTime.substring(0, 5));
 
-    if (inicioDescanso > finDescanso) {
-     if (horaSeleccionada >= inicioDescanso || horaSeleccionada < finDescanso) {
+    if ((inicioDescanso < finDescanso && horaSeleccionada >= inicioDescanso && horaSeleccionada < finDescanso) ||
+        (inicioDescanso > finDescanso && (horaSeleccionada >= inicioDescanso || horaSeleccionada < finDescanso))) {
       alert('No se puede reservar durante el descanso.');
       return;
-     }
-    } else {
-     if (horaSeleccionada >= inicioDescanso && horaSeleccionada < finDescanso) {
-      alert('No se puede reservar durante el descanso.');
-      return;
-     }
     }
-   }
   }
 
   this.isModalOpen = true;
   this.selectedDateForModal = dia;
   this.selectedTimeForModal = hora;
- }
+}
 
- obtenerCitaEnHoraConDetalle(dia: Date, hora: string, citas: any[], patientFilter: string = ''): any | null {  
-   if (hora) {
-     const [horaInicioSlot, minutosInicioSlot] = hora.split(':').map(Number);
-     const inicioSlot = new Date(dia);
-     inicioSlot.setHours(horaInicioSlot, minutosInicioSlot, 0, 0);
 
-     const finSlot = new Date(dia);
-     finSlot.setHours(horaInicioSlot + 1, minutosInicioSlot, 0, 0);     
-     const citaEnSlot = citas.find(cita => {
-       const nombrePaciente = cita.nombrePaciente.toLowerCase();
-       const filtro = patientFilter.toLowerCase();
-       return cita.start < finSlot && cita.end > inicioSlot && nombrePaciente.includes(filtro);
-     });
-     
-     if (citaEnSlot) {
-       const startTimeSlotMs = inicioSlot.getTime();
-       const endTimeSlotMs = finSlot.getTime();
-       const citaStartTimeMs = citaEnSlot.start.getTime();
-       const citaEndTimeMs = citaEnSlot.end.getTime();
+lastCitaEndTime: number | null = null;
 
-       const overlapStartMs = Math.max(startTimeSlotMs, citaStartTimeMs);
-       const overlapEndMs = Math.min(endTimeSlotMs, citaEndTimeMs);
+obtenerCitaEnHoraConDetalle(dia: Date, hora: string, citas: any[], patientFilter: string = ''): any | null {
+  if (!hora) return null;
 
-       const overlapDurationMs = overlapEndMs - overlapStartMs;
-       const slotDurationMs = endTimeSlotMs - startTimeSlotMs;
+  const [horaInicioSlot, minutosInicioSlot] = hora.split(':').map(Number);
+  const inicioSlot = new Date(dia);
+  inicioSlot.setHours(horaInicioSlot, minutosInicioSlot, 0, 0);
 
-       const topOffsetMs = overlapStartMs - startTimeSlotMs;
-       const topPercentage = (topOffsetMs / slotDurationMs) * 100;
-       const heightPercentage = (overlapDurationMs / slotDurationMs) * 100;
+  const citaEnSlot = citas.find(cita => {
+    const nombrePaciente = cita.nombrePaciente?.toLowerCase() || '';
+    const filtro = patientFilter.toLowerCase();
 
-       console.log("log on 232");
-       
-       return {
-         patient: citaEnSlot,
-         topPercentage: Math.max(0, topPercentage),
-         heightPercentage: Math.max(0, heightPercentage),
-       };
-     }
-   }   
-   return null;
- }
+    return cita.start < new Date(inicioSlot.getTime() + 60 * 60 * 1000) && // Hasta 1h después
+           cita.end > inicioSlot && 
+           nombrePaciente.includes(filtro);
+  });
+
+  if (citaEnSlot) {
+    const citaStartTimeMs = citaEnSlot.start.getTime();
+    const citaEndTimeMs = citaEnSlot.end.getTime();
+
+    // Comprobamos si la cita anterior termina justo cuando esta comienza
+    if (this.lastCitaEndTime && this.lastCitaEndTime === citaStartTimeMs) {
+      return null; // Si la cita es consecutiva a la anterior, no la pintamos
+    }
+
+    // Guardamos el tiempo de fin de esta cita para compararlo con la próxima
+    this.lastCitaEndTime = citaEndTimeMs;
+
+    const slotEnd = new Date(inicioSlot);
+    slotEnd.setHours(slotEnd.getHours() + 1); // solo para calcular la posición visual
+
+    const slotStartMs = inicioSlot.getTime();
+    const slotEndMs = slotEnd.getTime();
+
+    const overlapStartMs = Math.max(slotStartMs, citaStartTimeMs);
+    const overlapEndMs = Math.min(slotEndMs, citaEndTimeMs);
+
+    const overlapDurationMs = overlapEndMs - overlapStartMs;
+    const slotDurationMs = slotEndMs - slotStartMs;
+
+    const topOffsetMs = overlapStartMs - slotStartMs;
+    const topPercentage = (topOffsetMs / slotDurationMs) * 100;
+    const heightPercentage = (overlapDurationMs / slotDurationMs) * 100;
+
+    return {
+      ...citaEnSlot,
+      patient: citaEnSlot,
+      top: `${topPercentage.toFixed(2)}%`,
+      height: `${heightPercentage.toFixed(2)}%`
+    };
+  }
+
+  return null;
+}
+
+
  convertirHoraANumero(hora: string): number {
   const [horas, minutos] = hora.split(':').map(Number);
   return horas * 60 + minutos;
@@ -296,7 +321,8 @@ export class AgendaComponent implements OnInit, OnDestroy {
     patientId: (this.patientId) ? this.patientId : reservaData.patientId,
    },
    appointmentStart: reservaData.appointmentStart,
-   appointmentEnd: reservaData.appointmentEnd
+   appointmentEnd: reservaData.appointmentEnd,
+   service: reservaData.service
   };
 
   if (this.saveAppointmentSubscription) {
@@ -339,5 +365,10 @@ export class AgendaComponent implements OnInit, OnDestroy {
   const schedule = this.businessSchedules.find(s => s.dayOfWeek === diaSemana);
   return !!schedule && schedule.nonWorkingDay;
  }
+
+
+   viewPatientDetails(patientId: number) {    
+     this.router.navigate(['patient-details', patientId]);
+   }
 
 }

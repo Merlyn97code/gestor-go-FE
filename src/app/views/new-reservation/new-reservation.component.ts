@@ -13,30 +13,26 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { BusinessServiceService } from '../../services/business-service.service';
+import { BusinessService } from '../../models/business-service';
 
 interface Profesional {
   id: number;
   nombre: string;
 }
 
-interface Servicio {
-  id: number;
-  nombre: string;
-  precio: number;
-}
-
 @Component({
   selector: 'app-new-reservation',
-  imports: [CommonModule, ReactiveFormsModule, MatInputModule, CommonModule,
+  imports: [CommonModule,
     ReactiveFormsModule,
     MatInputModule,
+    MatAutocompleteModule,
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatIconModule,
-    MatAutocompleteModule
+    MatIconModule    
   ],
   templateUrl: './new-reservation.component.html',
   styleUrl: './new-reservation.component.scss',
@@ -56,12 +52,10 @@ export class NewReservationComponent implements OnInit {
   profesionales: Profesional[] = [
     { id: 1, nombre: 'Merlyn' }
   ];
-  servicios: Servicio[] = [
-    { id: 1, nombre: 'Consulta', precio: 900 }
-  ];
+  servicios: BusinessService[] = [];
 
   selectedPatient: Patient | null = null; // Cambiado a un solo paciente
-  constructor(private fb: FormBuilder, private patientService: PatientsService, private appointmentService: AppointmentsService) {
+  constructor(private fb: FormBuilder, private patientService: PatientsService, private businessService: BusinessServiceService) {
     this.reservaForm = this.fb.group({
       fecha: [null, Validators.required],
       horaInicio: [null, Validators.required],
@@ -94,7 +88,7 @@ export class NewReservationComponent implements OnInit {
 
     this.reservaForm.get('servicio')?.valueChanges.subscribe(servicioId => {
       const servicioSeleccionado = this.servicios.find(s => s.id === servicioId);
-      this.reservaForm.patchValue({ precio: servicioSeleccionado?.precio });
+      this.reservaForm.patchValue({ precio: servicioSeleccionado?.price });
     });
 
     this.searchResults$ = this.reservaForm.get('searchPaciente')?.valueChanges.pipe(
@@ -117,6 +111,11 @@ export class NewReservationComponent implements OnInit {
       this.reservaForm.get('pacientes')?.patchValue(null);
       this.reservaForm.get('searchPaciente')?.setValue('');
     }
+
+    this.businessService.getAllServices()
+    .subscribe(business => {
+      this.servicios = business;
+    });
   }
 
   onCloseModal(): void {
@@ -131,8 +130,9 @@ export class NewReservationComponent implements OnInit {
       const horaInicio = this.reservaForm.get('horaInicio')?.value;
       const horaFin = this.reservaForm.get('horaFin')?.value;
       const paciente = this.reservaForm.get('pacientes')?.value;
+      const serviceId = this.reservaForm.get('servicio')?.value;
 
-      if (fecha && horaInicio && horaFin && paciente) {
+      if (fecha && horaInicio && horaFin && paciente && serviceId) {
         const [startHour, startMinute] = horaInicio.split(':').map(Number);
         const [endHour, endMinute] = horaFin.split(':').map(Number);
 
@@ -145,7 +145,10 @@ export class NewReservationComponent implements OnInit {
         const newReservationData = {
           patientId: this.patientId ? this.patientId : this.selectedPatient?.patientId,
           appointmentStart: appointmentStart, // Envía en formato ISO 8601
-          appointmentEnd: appointmentEnd
+          appointmentEnd: appointmentEnd,
+          service: {
+            id: serviceId
+          }
           // Otros datos del formulario si son necesarios
         };
 

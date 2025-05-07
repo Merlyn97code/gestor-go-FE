@@ -33,7 +33,7 @@
       <div class="day-column" *ngFor="let dia of diasSemana">
         <div
           class="time-slot cita-container"
-          *ngFor="let hora of horasDia"
+          *ngFor="let hora of horasDia; let indexAux = index"
           [ngClass]="{
             'break-time': esHoraDeDescanso(dia, hora),
             'non-working-day': esDiaNoLaborable(dia),
@@ -42,13 +42,14 @@
           [attr.disabled]="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) ? true : null"
           (click)="!obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) && abrirModalNuevaReserva(dia, hora)"
         >
+ 
           <div
             *ngIf="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) as citaDetalle"
             class="cita-block"
             [style.top.%]="citaDetalle.topPercentage"
             [style.height.%]="citaDetalle.heightPercentage"
           >
-            <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }}</span>
+            <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }} </span>
             <button
               (click)="$event.stopPropagation()"
               mat-icon-button
@@ -56,26 +57,24 @@
             >
               <mat-icon [matMenuTriggerFor]="citaMenu">more_vert</mat-icon>
             </button>
+
+            <mat-menu #citaMenu="matMenu">
+              <button mat-menu-item>
+                <mat-icon>dialpad</mat-icon>
+                <span (click)="viewPatientDetails(citaDetalle.patient.patientId)">Iniciar Servicio</span>
+              </button>     
+              <button mat-menu-item>
+                <mat-icon>dialpad</mat-icon>
+                <span>{{citaDetalle.service.serviceName}}</span>
+              </button>          
+            </mat-menu>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <mat-menu #citaMenu="matMenu">
-    <button mat-menu-item>
-      <mat-icon>dialpad</mat-icon>
-      <span>Redial</span>
-    </button>
-    <button mat-menu-item disabled>
-      <mat-icon>voicemail</mat-icon>
-      <span>Check voice mail</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>notifications_off</mat-icon>
-      <span>Disable alerts</span>
-    </button>
-  </mat-menu>
+
 
   <app-new-reservation
     *ngIf="isModalOpen"

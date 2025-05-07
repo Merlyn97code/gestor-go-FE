@@ -1,26 +1,26 @@
-<div class="menu-container">
-  <!-- Icono del Menú Hamburger -->
-  <div class="hamburger" (click)="toggleMenu($event)">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-  </div>
-
-  <!-- Menú -->
-  <div class="menu" [class.open]="isMenuOpen">
-    <ul>
-      <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
-      <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
-      <li><a routerLink="/agenda" routerLinkActive="active">Agendar</a></li>
-      <li><a routerLink="/pacientes"  routerLinkActive="active">Pacientes</a></li>
-      <li><a routerLink="/registrarse"  routerLinkActive="active">Registrarse</a></li>
-      <li><a routerLink="/welcome"  routerLinkActive="active">Welcome</a></li>
-      <li><a routerLink="/patient"  routerLinkActive="active">Patient</a></li>
-      <li><a aria-disabled="true" href="#" class="disabled">Historiales Clínicos</a></li>
-      <li><a aria-disabled="true" href="#" class="disabled">Configuración</a></li>
-      <li><a aria-disabled="true" href="#" class="disabled">Cerrar sesión</a></li>
-
-      <li (click)="logout()"><a  href="#" routerLinkActive="active">Cerrar sesión</a></li>
+<nav class="navbar">
+  <div class="container">
+    <div class="logo">
+    </div>
+    <div class="hamburger" (click)="toggleMenu($event)">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <ul class="nav-links" [ngClass]="{'open': isMenuOpen}">
+      <li *ngIf="!isLoggedIn()"><a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Login</a></li>
+      <ng-container *ngIf="isLoggedIn()">
+        <li><a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Dashboard</a></li>
+        <li><a routerLink="/agenda" routerLinkActive="active" (click)="closeMenu()">Agendar</a></li>
+        <li><a routerLink="/pacientes" routerLinkActive="active" (click)="closeMenu()">Pacientes</a></li>
+        <li *ngIf="!isLoggedIn()"><a routerLink="/registrarse" routerLinkActive="active" (click)="closeMenu()">Registrarse</a></li>
+        <!--
+        <li><a routerLink="/welcome" routerLinkActive="active" (click)="closeMenu()">Welcome</a></li>
+        -->
+        <li><a routerLink="/patient" routerLinkActive="active" (click)="closeMenu()">Registrar Paciente</a></li>
+        <li (click)="logout()"><a href="#" routerLinkActive="active">Cerrar sesión</a></li>
+      </ng-container>
+  
     </ul>
   </div>
-</div>
+</nav>

@@ -7,6 +7,7 @@ import { RegisterComponent } from './views/register/register.component';
 import { WelcomeComponent } from './views/welcome/welcome.component';
 import { CreatePatientComponent } from './views/create-patient/create-patient.component';
 import { PatientDetailsComponent } from './views/patient-details/patient-details.component';
+import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
     {
@@ -15,34 +16,42 @@ export const routes: Routes = [
     },
     {
         path: "dashboard",
-        component: DashboardComponent
+        component: DashboardComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'agenda/:id',
-        component: AgendaComponent
+        component: AgendaComponent,
+        canActivate: [authGuard]
     },    
     {
         path: 'agenda',
-        component: AgendaComponent
+        component: AgendaComponent,
+        canActivate: [authGuard]
     },    
     {
         path: 'pacientes',
-        component: PatientsComponent
+        component: PatientsComponent,
+        canActivate: [authGuard]
     },
     {
         path: "registrarse",
-        component: RegisterComponent
+        component: RegisterComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'welcome',
-        component: WelcomeComponent
+        component: WelcomeComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'patient',
-        component: CreatePatientComponent
+        component: CreatePatientComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'patient-details/:id',
-        component: PatientDetailsComponent
+        component: PatientDetailsComponent,
+        canActivate: [authGuard]
     }
 ];

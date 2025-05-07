@@ -45,4 +45,7 @@ export class MenuHamburgerComponent {
     this.router.navigate(['/login']);
   }
 
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('authToken');
+  }
 }

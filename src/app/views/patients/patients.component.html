@@ -1,11 +1,14 @@
 <div class="patients-container">
   <div class="search-bar">
-    <mat-form-field appearance="outline">
-      <mat-label><mat-icon>search</mat-icon> Buscar paciente</mat-label>
-      <input matInput [(ngModel)]="searchQuery" placeholder="Nombre o ID" />
+    <mat-form-field class="full-width">
+      <mat-label>Paciente</mat-label>
+      <input
+        matInput
+        type="text"
+        [formControl]="searchQuery"                 
+      />
+
     </mat-form-field>
-    <button mat-raised-button color="primary" (click)="searchPatients()">Buscar</button>
-    <button mat-raised-button (click)="resetSearch()">Restablecer</button>
     <button mat-raised-button color="accent" routerLink="/patient">
       <mat-icon>person_add</mat-icon> Crear Paciente
     </button>
@@ -34,7 +37,7 @@
         <button mat-raised-button color="accent" (click)="editPatient(patient)">
           <mat-icon>edit</mat-icon> Editar
         </button>
-        <button mat-raised-button color="warn" (click)="deletePatient(patient.patientId)">
+        <button *ngIf="patient.patientId" mat-raised-button color="warn" (click)="deletePatient(patient.patientId)">
           <mat-icon>delete</mat-icon> Eliminar
         </button>
       </div>

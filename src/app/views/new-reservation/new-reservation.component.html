@@ -1,27 +1,35 @@
 <div class="modal-overlay">
   <div class="modal-content">
+    <!-- Header -->
     <div class="modal-header">
       <h2>Nueva reserva</h2>
       <button mat-icon-button (click)="onCloseModal()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
+
+    <!-- Body -->
     <div class="modal-body">
       <form [formGroup]="reservaForm" class="reservation-form">
-
         <div class="form-grid">
+
+          <!-- Hora Inicio -->
           <div class="form-group">
             <mat-form-field class="full-width">
               <mat-label><mat-icon>access_time</mat-icon> Hora Inicio</mat-label>
               <input matInput type="time" formControlName="horaInicio">
             </mat-form-field>
           </div>
+
+          <!-- Hora Fin -->
           <div class="form-group">
             <mat-form-field class="full-width">
               <mat-label><mat-icon>access_time</mat-icon> Hora Fin</mat-label>
               <input matInput type="time" formControlName="horaFin">
             </mat-form-field>
           </div>
+
+          <!-- Fecha -->
           <div class="form-group">
             <mat-form-field class="full-width">
               <mat-label><mat-icon>calendar_today</mat-icon> Fecha</mat-label>
@@ -31,8 +39,9 @@
             </mat-form-field>
           </div>
 
+          <!-- Paciente -->
           <div class="form-group">
-            <mat-form-field>
+            <mat-form-field class="full-width">
               <mat-label>Paciente</mat-label>
               <input
                 matInput
@@ -48,55 +57,64 @@
               </mat-autocomplete>
             </mat-form-field>
 
+            <!-- Paciente Seleccionado -->
             <div *ngIf="selectedPatient">
               <label>Paciente Seleccionado:</label>
-              <div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                 <span>{{ getPatientDisplayName(selectedPatient) }}</span>
-                {{fromUrl}}
                 <button [disabled]="fromUrl" mat-icon-button color="warn" (click)="removePatient()">
                   <mat-icon>cancel</mat-icon>
                 </button>
               </div>
             </div>
 
+            <!-- Botón agregar paciente -->
             <button type="button" class="add-patient">Agregar nuevo paciente</button>
           </div>
-          <!--
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>person</mat-icon> Profesional</mat-label>
-              <mat-select formControlName="profesional">
-                <mat-option *ngFor="let profesional of profesionales" [value]="profesional.id">{{ profesional.nombre }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          -->
+
+          <!-- Servicio -->
           <div class="form-group">
             <mat-form-field class="full-width">
               <mat-label><mat-icon>medical_services</mat-icon> Servicio</mat-label>
               <mat-select formControlName="servicio">
-                <mat-option *ngFor="let servicio of servicios" [value]="servicio.id">{{ servicio.nombre }}</mat-option>
+                <mat-option *ngFor="let servicio of servicios" [value]="servicio.id">
+                  {{ servicio.serviceName }}
+                </mat-option>
               </mat-select>
             </mat-form-field>
           </div>
+
+          <!-- Precio -->
           <div class="form-group">
             <mat-form-field class="full-width">
               <mat-label><mat-icon>attach_money</mat-icon> Precio</mat-label>
               <input matInput type="number" formControlName="precio">
             </mat-form-field>
           </div>
+
+          <!-- Información adicional -->
           <div class="form-group">
             <mat-form-field class="full-width">
               <mat-label><mat-icon>info</mat-icon> Información adicional</mat-label>
               <textarea matInput formControlName="informacionAdicional"></textarea>
             </mat-form-field>
           </div>
+
         </div>
       </form>
     </div>
+
+    <!-- Footer -->
     <div class="modal-footer">
       <button mat-raised-button (click)="onCloseModal()">Cancelar</button>
-      <button mat-raised-button color="primary" (click)="onGuardarReserva()" [disabled]="reservaForm.invalid || !selectedPatient">Guardar reserva</button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onGuardarReserva()"
+        [disabled]="reservaForm.invalid || !selectedPatient"
+      >
+        Guardar reserva
+      </button>
     </div>
   </div>
 </div>

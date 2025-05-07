@@ -1,3 +1,4 @@
+import { BusinessService } from "./business-service";
 import { Patient } from "./patients";
 
 export interface Appointment {
@@ -7,4 +8,7 @@ export interface Appointment {
     appointmentDate?: Date,
     appointmentEnd: Date,
     appointmentStart: Date
+    service: BusinessService,
+    businessServiceEntity?: BusinessService
+    patientId?: number
 }

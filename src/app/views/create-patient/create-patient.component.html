@@ -23,6 +23,22 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
+        <mat-label><mat-icon>wc</mat-icon> Género</mat-label>
+        <mat-select formControlName="gender">
+          <mat-option value="male">Masculino</mat-option>
+          <mat-option value="female">Femenino</mat-option>
+          <mat-option value="other">Otro</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label><mat-icon>cake</mat-icon> Fecha de Nacimiento</mat-label>
+        <input matInput [matDatepicker]="birthDatePicker" formControlName="birthday">
+        <mat-datepicker-toggle matSuffix [for]="birthDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #birthDatePicker></mat-datepicker>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label><mat-icon>email</mat-icon> Correo Electrónico</mat-label>
         <input matInput formControlName="email">
       </mat-form-field>
@@ -32,14 +48,6 @@
         <textarea matInput formControlName="address"></textarea>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label><mat-icon>wc</mat-icon> Género</mat-label>
-        <mat-select formControlName="gender">
-          <mat-option value="male">Masculino</mat-option>
-          <mat-option value="female">Femenino</mat-option>
-          <mat-option value="other">Otro</mat-option>
-        </mat-select>
-      </mat-form-field>
 
     </div>
 

@@ -26,7 +26,7 @@ export class PatientsService extends ApiService{
     return this.getPath<PatientData>(id);
   }
 
-  getPatientByName(name: string): Observable<Patient[]> {
+  getPatientByName(name: string): Observable<Array<PatientData>> {
     return this.getQP('/search', {name});
   }
 }

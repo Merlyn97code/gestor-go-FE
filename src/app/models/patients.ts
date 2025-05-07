@@ -1,3 +1,4 @@
+import { MedicalConsultation } from "./medial-consultation";
 import { Tenant, User } from "./tenant-user";
 
 export interface Person {
@@ -6,11 +7,12 @@ export interface Person {
   lastName: string;
   motherLastName?: string;
   phone: string;
-  email: string;
+  email?: string;
   address: string;
   createdAt: string | null;
   updatedAt: string | null;
-  gender: Gender;
+  gender: Gender,
+  age?: number
 }
 
   export interface Patient {
@@ -20,13 +22,13 @@ export interface Person {
   
 
   export interface PatientData {
-    patientId: number;
-    tenant: Tenant;
+    patientId?: number;
+    tenant?: Tenant;
     person: Person;
-    users: User[];
-    createdAt: string;
-    updatedAt: string;
-    consultations: any[];
+    users?: User[];
+    createdAt?: string;
+    updatedAt?: string;
+    consultations?: MedicalConsultation[];
   }
 
   export enum Gender {

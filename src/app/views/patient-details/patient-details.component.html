@@ -1,121 +1,117 @@
-<mat-card class="patient-details-card">
-  <mat-card-header>
-    <mat-card-title>Detalles del Paciente</mat-card-title>
-  </mat-card-header>
+<div class="flex">
 
-  <mat-card-content>
-    <div class="patient-details-container">
-      <div class="patient-header">
-        <div class="patient-avatar">
-          <mat-icon class="avatar-icon">person</mat-icon>
-        </div>
-        <div class="patient-name-age">
-          <h3 class="patient-name">{{ patient.person.firstName }} {{ patient.person.lastName }}</h3>
-          <p class="patient-age">Edad: 30</p>
-        </div>
+  <mat-card class="patient-card">
+    <mat-card-header class="header">
+      <div class="avatar-container">
+        <mat-icon>person</mat-icon>
+      </div>
+      <div>
+        <h2 class="patient-name" *ngIf="patient && patient?.person?.firstName">
+          {{ patient?.person?.firstName }} {{ patient?.person?.lastName }}
+        </h2>
+        <p class="patient-age">{{ patient?.person?.age }} Años</p>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content class="info-section">
+      <mat-divider></mat-divider>
+
+      <div class="info-grid">
+        <div><strong>📞 Teléfono:</strong> {{ patient?.person?.phone || '' }}</div>
+        <div><strong>✉️ Email:</strong> {{ patient?.person?.email || '' }}</div>
+        <div><strong>📍 Dirección:</strong> {{ patient?.person?.address || '' }}</div>
+        <div><strong>📅 Creación:</strong> {{ patient?.createdAt | date: 'short' }}</div>
+        <div><strong>🔄 Última Actualización:</strong> {{ patient?.updatedAt | date: 'short' }}</div>
       </div>
 
-      <div class="patient-info-grid">
-        <div class="info-item">
-          <strong class="label">Género:</strong> {{ getGenderDisplay(patient.person.gender) || 'Femenino' }}
-        </div>
-        <div class="info-item">
-          <strong class="label">Teléfono:</strong> {{ patient.person.phone || '123-456-7890' }}
-        </div>
-        <div class="info-item">
-          <strong class="label">Email:</strong> {{ patient.person.email || 'paciente@ejemplo.com' }}
-        </div>
-        <div class="info-item">
-          <strong class="label">Dirección:</strong> {{ patient.person.address || 'Calle Principal 123' }}
-        </div>
-        <div class="info-item">
-          <strong class="label">Fecha de Creación:</strong> {{ patient.createdAt | date: 'short' }}
-        </div>
-        <div class="info-item">
-          <strong class="label">Última Actualización:</strong> {{ patient.updatedAt | date: 'short' }}
-        </div>
-        <div class="info-item" style="grid-column: 1 / -1;">
-          <strong class="label">Historial Médico:</strong> {{ 'Sin historial disponible' }}
-        </div>
+      <div class="section">
+        <h3>🩺 Historial Médico</h3>
+        <p>{{ 'Sin historial disponible' }}</p>
       </div>
 
-      <div class="consultations-section">
-        <h3>Consultas</h3>
-        <button mat-raised-button color="accent" (click)="toggleNewConsultation()">Nueva Consulta</button>
+      <div class="section">
+        <h3>🗒️ Nueva Consulta</h3>
+        <button mat-stroked-button color="primary" (click)="toggleNewConsultation()">Agregar Consulta</button>
+      </div>
 
-        <div *ngIf="showNewConsultation">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Motivo de Consulta</mat-label>
-            <textarea matInput [(ngModel)]="newConsultation.reason"></textarea>
-          </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Detalle de Consulta</mat-label>
-            <textarea matInput [(ngModel)]="newConsultation.details"></textarea>
-          </mat-form-field>
+      <div class="section past-consultations">
+        <h3>📅 Consultas Pasadas</h3>
+        <mat-list>
+          <mat-list-item
+            *ngFor="let consultation of patient?.consultations; let i = index"
+            (click)="showConsultationDetails(consultation)"
+            class="consultation-item"
+          >
+            <mat-icon matListIcon color="primary">assignment</mat-icon>
+            <div matLine class="consultation-info">
+              <span class="consultation-date">{{ consultation?.createdAt | date: 'dd/MM/yyyy - HH:mm' }}</span>
+              <span class="consultation-details">Consulta</span>
+            </div>
+            <mat-icon matSuffix color="accent">chevron_right</mat-icon>
+          </mat-list-item>
+          <div *ngIf="patient?.consultations?.length === 0" class="empty-consultations">
+            <mat-icon color="warn">info_outline</mat-icon>
+            <span>No hay consultas pasadas registradas para este paciente.</span>
+          </div>
+        </mat-list>
+      </div>
 
-          <mat-form-field appearance="outline" class="full-width">
+    </mat-card-content>
+
+    <mat-card-actions align="end" class="actions">
+      <button mat-button color="primary">Editar</button>
+      <button mat-button color="accent" (click)="viewAgenda(patient)">Agendar</button>
+      <button mat-button color="warn">Eliminar</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <div class="consultation-details" #consultationDetailsContainer>
+    <div class="card">
+      <h3 class="card-title">📋 Detalles de la Consulta</h3>
+
+      <div class="card-content">
+        <div class="info">
+          <div class="info-row">
+            <span class="label">Fecha:</span>
+            <span class="value" *ngIf="!showNewConsultation || selectedConsultation">{{ selectedConsultation?.createdAt | date: 'short' }}</span>
+            <span class="value" *ngIf="showNewConsultation">{{ getTodayDate() | date: 'short' }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="label" *ngIf="!showNewConsultation || selectedConsultation">Motivo:</span>
+            <span class="value" *ngIf="!showNewConsultation || selectedConsultation">{{ selectedConsultation?.reasonOfConsultation }}</span>
+
+            <mat-form-field *ngIf="showNewConsultation" appearance="outline" class="full-width">
+              <mat-label >Motivo</mat-label>
+              <textarea matInput [(ngModel)]="newConsultation.reasonOfConsultation"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="info-row">
+            <span class="label" *ngIf="!showNewConsultation || selectedConsultation">Detalle:</span>
+            <span class="value" *ngIf="!showNewConsultation || selectedConsultation">{{ selectedConsultation?.details }}</span>
+
+            <mat-form-field *ngIf="showNewConsultation" appearance="outline" class="full-width">
+              <mat-label>Detalle</mat-label>
+              <textarea matInput [(ngModel)]="newConsultation.details"></textarea>
+            </mat-form-field>
+          </div>
+
+        </div>
+
+        <div class="notes">
+          <h4>📝 Notas</h4>
+          <p *ngIf="!showNewConsultation || selectedConsultation">{{ selectedConsultation?.notes }}</p>
+
+          <mat-form-field *ngIf="showNewConsultation" appearance="outline" class="full-width">
             <mat-label>Notas</mat-label>
             <textarea matInput [(ngModel)]="newConsultation.notes"></textarea>
           </mat-form-field>
-
-          <button mat-raised-button color="primary" (click)="addConsultation()">Guardar Consulta</button>
         </div>
 
-        <h3>
-          Consultas pasadas
-        </h3>
-        <mat-list class="consultations-list">
-          <mat-list-item *ngFor="let consultation of patient.consultations" (click)="showConsultationDetails(consultation)" class="consultation-item">
-            <div class="consultation-content">
-              <mat-icon mat-list-icon>chevron_right</mat-icon>
-              <div class="container-data">
-                <div mat-line class="consultation-reason">{{ consultation.reason }}</div>
-                <div mat-line class="consultation-date">Fecha: {{ consultation.date | date: 'short' }}</div>
-              </div>
-            </div>   
-          </mat-list-item>
-        </mat-list>
-        <div #consultationDetailsContainer>
-          <mat-card class="patient-details-card" *ngIf="selectedConsultation" #consultationDetailsCard>
-              <mat-card-header>
-                  <mat-card-title>Detalles del Paciente</mat-card-title>
-              </mat-card-header>
-
-              <mat-card class="patient-details-card">
-                  <div class="consultations-section">
-                      <div class="consultation-details">
-                          <h4>Detalles de la Consulta</h4>
-                          <div class="chalkboard">
-                              <table class="consultation-table">
-                                  <tr>
-                                      <td><strong>Motivo:</strong></td>
-                                      <td>{{ selectedConsultation.reason }}</td>
-                                  </tr>
-                                  <tr>
-                                      <td><strong>Detalle:</strong></td>
-                                      <td>{{ selectedConsultation.details }}</td>
-                                  </tr>
-                              </table>
-                              <div class="post-it" style="transform: rotate(1deg);">
-                                  <p><strong>Notas:</strong> {{ selectedConsultation.notes }}</p>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </mat-card>
-
-              <mat-card-actions class="patient-actions">
-              </mat-card-actions>
-          </mat-card>
-      </div>
+        <button *ngIf="showNewConsultation" mat-raised-button color="accent" (click)="addConsultation()">Guardar</button>
       </div>
     </div>
-  </mat-card-content>
-
-  <mat-card-actions class="patient-actions">
-    <button mat-raised-button color="primary">Editar</button>
-    <button mat-raised-button color="primary" (click)="viewAgenda(patient)">Agendar</button>
-    <button mat-raised-button color="warn">Eliminar</button>
-  </mat-card-actions>
-</mat-card>
+  </div>
+</div>

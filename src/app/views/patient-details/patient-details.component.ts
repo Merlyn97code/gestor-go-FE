@@ -34,6 +34,8 @@ import {
   MatDividerModule
 } from '@angular/material/divider';
 import { ConsultationDetailsComponent } from '../consultation-details/consultation-details.component';
+import { ConsultationsService } from '../../services/consultations.service';
+import { MedicalConsultation } from '../../models/medial-consultation';
 
 @Component({
   selector: 'app-patient-details',
@@ -51,15 +53,16 @@ import { ConsultationDetailsComponent } from '../consultation-details/consultati
       FormsModule,
       MatButtonModule,
       MatDividerModule,
-      ConsultationDetailsComponent
+      ConsultationDetailsComponent,
   ]
 })
 export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
   patient!: PatientData;
   patientId!: number;
   showNewConsultation = false;
-  newConsultation = { reason: '', details: '', notes: '' };
-  selectedConsultation: any;
+  newConsultation: MedicalConsultation = {patient: this.patient, details: '', notes: '', reasonOfConsultation: ''};
+  selectedConsultation!: MedicalConsultation | null;
+  currentDate!: Date;
   private clickInsideConsultationDetails = false;
   @ViewChild('consultationDetailsCard') consultationDetailsCard!: ElementRef;
   @ViewChild('consultationDetailsContainer') consultationDetailsContainer!: ElementRef;
@@ -68,7 +71,7 @@ export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
       private route: ActivatedRoute,
       private patientService: PatientsService,
       private router: Router,
-      private renderer: Renderer2
+      private consultationService: ConsultationsService      
   ) { }
 
   ngOnInit(): void {
@@ -76,30 +79,16 @@ export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
           this.patientId = +params['id'];
           this.patientService.getPatientById(this.patientId).subscribe(patientDetailsData => {
               this.patient = patientDetailsData;
-
-              // Mock de consultas
-              this.patient.consultations = [
-                  {
-                      reason: 'Dolor de cabeza',
-                      details: 'Dolor punzante en la sien derecha.',
-                      notes: 'Recetar analgésico.',
-                      date: new Date('2023-11-10T10:00:00')
-                  },
-                  {
-                      reason: 'Control de rutina',
-                      details: 'Revisión general y presión arterial.',
-                      notes: 'Todo normal.',
-                      date: new Date('2023-12-05T14:30:00')
-                  },
-                  {
-                      reason: 'Lesión en tobillo',
-                      details: 'Esguince leve durante el ejercicio.',
-                      notes: 'Aplicar hielo y reposo.',
-                      date: new Date('2024-01-15T09:15:00')
-                  }
-              ];
+              this.getConsultations();     
           });
       });
+  }
+
+  getConsultations() {
+    this.consultationService.getAllConsultationByPatientId(this.patientId)
+              .subscribe(consultations => {
+                this.patient.consultations = consultations;                              
+              }); 
   }
 
   ngAfterViewInit() {
@@ -109,7 +98,9 @@ export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
   }
 
   viewAgenda(patient: PatientData) {
+    if (patient) {
       this.router.navigate(['agenda', patient.patientId]);
+    }      
   }
 
   getGenderDisplay(gender: Gender): string {
@@ -127,23 +118,38 @@ export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
 
   toggleNewConsultation() {
       this.showNewConsultation = !this.showNewConsultation;
+      this.selectedConsultation = null;
   }
 
-  addConsultation() {
+  addConsultation() {  
+      this.newConsultation.patient = {
+        patientId: this.patientId
+      }
+      this.newConsultation.createdAt = this.currentDate;
+      this.consultationService.createConsultation(this.newConsultation)
+      .subscribe(consultationCreated => {        
+        this.getConsultations();  
+      });
       this.showNewConsultation = false;
-      this.newConsultation = { reason: '', details: '', notes: '' };
+      //this.newConsultation = { reason: '', details: '', notes: '' };
   }
 
-  showConsultationDetails(consultation: any) {
+  showConsultationDetails(consultation: any) {    
     this.clickInsideConsultationDetails = true; // Set to true when clicked inside
     this.selectedConsultation = consultation;
+    this.showNewConsultation = false;
 }
 
 @HostListener('document:click', ['$event'])
 closeConsultationDetailsOnClickOutside(event: MouseEvent) {
     if (this.selectedConsultation && this.consultationDetailsContainer && !this.clickInsideConsultationDetails && !this.consultationDetailsContainer.nativeElement.contains(event.target as Node)) {
-        this.selectedConsultation = null;
+        this.selectedConsultation = null;   
     }
     this.clickInsideConsultationDetails = false; // Reset the flag
+}
+
+getTodayDate() {
+  this.currentDate = new Date();
+  return this.currentDate;
 }
 }

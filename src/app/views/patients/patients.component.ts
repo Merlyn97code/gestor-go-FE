@@ -1,45 +1,77 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { PatientsService } from '../../services/patients.service';
-import { Gender, PatientData } from '../../models/patients';
+import { Gender, Patient, PatientData } from '../../models/patients';
 import { PatientDetailsComponent } from '../patient-details/patient-details.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { debounceTime, distinctUntilChanged, filter, Observable, startWith, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-patients',
   imports: [CommonModule, FormsModule, MatCardModule,
     MatButtonModule,
     MatIconModule,
-  RouterModule,
+    RouterModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule],
+    MatSelectModule,
+    ReactiveFormsModule,    
+    MatAutocompleteModule,
+  ],
   templateUrl: './patients.component.html',
   styleUrl: './patients.component.scss',
   standalone: true
 })
 export class PatientsComponent {
-
-  patients!: Array<PatientData>;
-  selectedPatient!: PatientData;
+  selectedPatient: Patient | null = null; // Cambiado a un solo paciente
+  patients!:Array<PatientData>;  
   isModalOpen = false;
   isEdit = false;
-  patientForm = { id: 0, name: '', age: 0, gender: '', medicalHistory: '' };
-  searchQuery = '';
-  
+  patientForm = { id: 0, name: '', age: 0, gender: '', medicalHistory: '' };  
+  searchQuery = new FormControl('');
+  searchResults$!: Observable<Array<PatientData>> | undefined;
   constructor(private patientsService: PatientsService, private router: Router){}
   ngOnInit() {
 
     this.patientsService
     .getAllPatientsByUserId()
     .subscribe(patients => {
+      this.patients = patients;
+    });
+
+
+    this.searchResults$ = this.searchQuery.valueChanges.pipe(
+      startWith(''), // Emitir un valor inicial (vacío) al suscribirse
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term => {
+        if (!term || term.length < 2) {
+          // Si el término es vacío o tiene menos de 2 caracteres,
+          // llama a getAllPatientsByUserId y envuélvelo en un Observable
+          return this.patientsService.getAllPatientsByUserId();
+        } else {
+          // Si el término tiene 2 o más caracteres, realiza la búsqueda por nombre
+          return this.patientsService.getPatientByName(term);
+        }
+      })
+    );
+    this.searchResults$.subscribe(results => {
+      this.patients = results;
+    });
+
+    // También podrías cargar todos los pacientes al inicializar el componente
+    this.loadAllPatients();
+  }
+  loadAllPatients(): void {
+    this.patientsService.getAllPatientsByUserId().subscribe(patients => {
       this.patients = patients;
     });
   }
@@ -50,9 +82,8 @@ export class PatientsComponent {
     }
   }
 
-  resetSearch() {
-    this.searchQuery = '';
-    //this.patients = this.patientsData;
+  resetSearch() {    
+    
   }
 
   viewPatientDetails(patient: PatientData) {    
@@ -100,6 +131,7 @@ export class PatientsComponent {
 
 
   getFullName(patient: PatientData) {
+     if (patient && patient.person) {
       const first = patient?.person.firstName ? patient?.person.firstName : '';
       const last = patient?.person.lastName ? patient?.person.lastName : '';
       const mother = patient?.person.motherLastName ? patient?.person.motherLastName : '';
@@ -125,6 +157,8 @@ export class PatientsComponent {
       }
     
       return fullName;
+     }
+     return '';
     }
 
     // En tu componente TypeScript:

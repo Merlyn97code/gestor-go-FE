@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RegisterService } from '../../services/register.service';
 import { RolesService } from '../../services/roles.service';
@@ -7,14 +7,11 @@ import { BusinessSchedule, Person, Register, Tenant } from '../../models/tenant-
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
@@ -22,8 +19,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss',
     standalone: true,
-    imports: [FormsModule, CommonModule, MatFormFieldModule, MatAutocompleteModule,
-        ReactiveFormsModule, MatInputModule, MatIconModule, MatOptionModule, MatButtonModule, MatDialogModule,
+    imports: [FormsModule, CommonModule, MatFormFieldModule,
+        ReactiveFormsModule, MatInputModule, MatOptionModule, MatButtonModule,
         MatSelectModule, MatStepperModule, RouterModule, MatCheckboxModule],
 })
 export class RegisterComponent implements OnInit {
@@ -33,11 +30,10 @@ export class RegisterComponent implements OnInit {
     roleId: number = 0;
     private _formBuilder = inject(FormBuilder);
     private router = inject(Router);
-
+    @ViewChild('stepper') stepper!: MatStepper;
     tenantForm = this._formBuilder.group({
         name: ['', Validators.required],
         phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-        whatsAppNumber: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
         address: ['', Validators.required],
     });
@@ -46,8 +42,7 @@ export class RegisterComponent implements OnInit {
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
         phone: ['', Validators.required],
-        email: ['', Validators.required],
-        address: ['']
+        email: ['', Validators.required]        
     });
 
     passwords = this._formBuilder.group({
@@ -72,6 +67,18 @@ export class RegisterComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadRoles();
+        this.setTenantEmailIntoPersonEmail();
+    }
+    setTenantEmailIntoPersonEmail() {
+        this.tenantForm.get('email')
+        ?.valueChanges.subscribe(tenantEmail => {
+            this.person.get('email')?.setValue(tenantEmail);
+        });
+
+        this.tenantForm.get('phone')
+        ?.valueChanges.subscribe(tenantEmail => {
+            this.person.get('phone')?.setValue(tenantEmail);
+        });
     }
 
     loadRoles() {
@@ -108,15 +115,34 @@ export class RegisterComponent implements OnInit {
                     businessSchedules: this.getBusinessSchedules()
                 }
 
-            this.registerService.registerNewTenant(register)
-                .subscribe(userTenant => {
-                    if (userTenant) {
-                        if (userTenant && userTenant.token) {
-                            localStorage.setItem('authToken', userTenant.token);
-                            this.router.navigate(['/welcome']);
-                        }
+                this.registerService.registerNewTenant(register)
+                .subscribe({
+                  next: userTenant => {
+                    if (userTenant && userTenant.token) {
+                      localStorage.setItem('authToken', userTenant.token);
+                      this.router.navigate(['/welcome']);
                     }
+                  },
+                  error: err => {
+                    if (err.status === 400 && err.error.field) {
+                      const fieldName = err.error.field;                                      
+                      const form = err.error.form;
+                      this.stepper.selectedIndex = err.error.step || 0;
+                  
+                      switch (form) {
+                        case 'tenantForm':
+                            if (this.tenantForm.get(fieldName)) {
+                                this.tenantForm.get(fieldName)?.setErrors({
+                                  serverError: err.error.message
+                                });
+                              }     
+                            break;        
+                      }                   
+                    }
+                  }
+                  
                 });
+              
         } else {
             console.log('Formulario no válido');
         }

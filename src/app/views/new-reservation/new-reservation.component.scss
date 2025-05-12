@@ -126,6 +126,12 @@
 
 /* Responsividad para pantallas pequeñas */
 @media (max-width: 600px) {
+
+    .form-group {
+    margin-bottom: 10px; /* Espacio reducido entre campos */
+  }
+
+  
   .modal-content {
     width: 100%; /* Modal ocupa todo el ancho */
     max-width: 100%; /* Sin límite en el ancho */

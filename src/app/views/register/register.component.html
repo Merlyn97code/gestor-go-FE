@@ -1,6 +1,6 @@
 <div class="register-container">
   <h2>Registro</h2>
-  <mat-stepper [linear]="isLinear" #stepper>
+  <mat-stepper [linear]="isLinear" #stepper >
       <mat-step label="Datos de tu negocio" [stepControl]="tenantForm">
           <form [formGroup]="tenantForm">
               Datos de tu negocio
@@ -13,13 +13,13 @@
                   <input matInput formControlName="phone" type="tel">
               </mat-form-field>
               <mat-form-field appearance="outline">
-                  <mat-label>WhatsApp</mat-label>
-                  <input matInput formControlName="whatsAppNumber">
+                <mat-label>Correo Electrónico</mat-label>
+                <input matInput formControlName="email" type="email">
+                <mat-error *ngIf="tenantForm.get('email')?.hasError('serverError')">
+                  {{ tenantForm.get('email')?.getError('serverError') }}
+                </mat-error>
               </mat-form-field>
-              <mat-form-field appearance="outline">
-                  <mat-label>Correo Electrónico</mat-label>
-                  <input matInput formControlName="email" type="email">
-              </mat-form-field>
+              
               <mat-form-field appearance="outline">
                   <mat-label>Dirección</mat-label>
                   <textarea matInput formControlName="address"></textarea>
@@ -48,10 +48,13 @@
                   <mat-label>Correo Electrónico</mat-label>
                   <input matInput formControlName="email" required>
               </mat-form-field>
+            <!--
               <mat-form-field>
                   <mat-label>Direccion</mat-label>
                   <input matInput formControlName="address">
               </mat-form-field>
+            -->
+
               <div>
                   <button mat-button matStepperNext>Siguiente</button>
                   <button mat-button matStepperPrevious>Atras</button>

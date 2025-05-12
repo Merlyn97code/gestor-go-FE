@@ -30,6 +30,7 @@ export class DashboardComponent {
     this.appointmentsService.getTodayAppointments()
     .subscribe(todayAppointments => {      
       this.todayAppointments = todayAppointments;
+      this.changeAppointmentListSelected('Hoy', todayAppointments);
     });
     this.appointmentsService.getTomorrowAppointments()
     .subscribe(tomorrowAppointments => {      
@@ -39,7 +40,7 @@ export class DashboardComponent {
     .subscribe(remainingAppointments => {      
       this.remainingAppointments = remainingAppointments;
     });
-    this.loadDashboardData();
+    this.loadDashboardData();    
   }
 
   // Método que simula la carga de datos desde un servicio o API.

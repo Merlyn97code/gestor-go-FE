@@ -1,4 +1,4 @@
-import { MedicalConsultation } from "./medial-consultation";
+import { PatientServiceEntity } from "./medial-consultation";
 import { Tenant, User } from "./tenant-user";
 
 export interface Person {
@@ -28,7 +28,7 @@ export interface Person {
     users?: User[];
     createdAt?: string;
     updatedAt?: string;
-    consultations?: MedicalConsultation[];
+    consultations?: PatientServiceEntity[];
   }
 
   export enum Gender {

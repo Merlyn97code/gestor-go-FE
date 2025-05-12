@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
-import { MedicalConsultation } from '../models/medial-consultation';
+import { PatientServiceEntity } from '../models/medial-consultation';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -14,11 +14,11 @@ export class ConsultationsService extends ApiService{
     this.url += 'consultations/';
    }
 
-   createConsultation(medicalConsultation: MedicalConsultation): Observable<MedicalConsultation> {
-    return this.post<MedicalConsultation, MedicalConsultation>(`patients/${medicalConsultation.patient?.patientId}/consultations`, medicalConsultation);
+   createConsultation(medicalConsultation: PatientServiceEntity): Observable<PatientServiceEntity> {
+    return this.post<PatientServiceEntity, PatientServiceEntity>(`patients/${medicalConsultation.patient?.patientId}/consultations`, medicalConsultation);
    }
 
    getAllConsultationByPatientId(patientId: number) {
-    return this.get<Array<MedicalConsultation>>(`patient/${patientId}`)
+    return this.get<Array<PatientServiceEntity>>(`patient/${patientId}`)
    }
 }

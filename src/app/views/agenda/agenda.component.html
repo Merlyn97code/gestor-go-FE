@@ -1,4 +1,7 @@
 <div class="agenda-container">
+  <!--
+  usar     inset: 0px 0% -34px; para poder las medidas
+  -->
   <div class="header">
     <button (click)="navegarSemana(-1)" class="nav-button">
       <mat-icon>chevron_left</mat-icon>
@@ -30,47 +33,50 @@
       <div class="day-column header-cell" *ngFor="let dia of diasSemana">
         {{ dia | date:'EEE dd/MM' }}
       </div>
-      <div class="day-column" *ngFor="let dia of diasSemana">
-        <div
-          class="time-slot cita-container"
-          *ngFor="let hora of horasDia; let indexAux = index"
-          [ngClass]="{
-            'break-time': esHoraDeDescanso(dia, hora),
-            'non-working-day': esDiaNoLaborable(dia),
-            'has-cita': obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter)
-          }"
-          [attr.disabled]="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) ? true : null"
-          (click)="!obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) && abrirModalNuevaReserva(dia, hora)"
-        >
- 
-          <div
-            *ngIf="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) as citaDetalle"
-            class="cita-block"
-            [style.top.%]="citaDetalle.topPercentage"
-            [style.height.%]="citaDetalle.heightPercentage"
-          >
-            <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }} </span>
-            <button
-              (click)="$event.stopPropagation()"
-              mat-icon-button
-              aria-label="Ver opciones"
-            >
-              <mat-icon [matMenuTriggerFor]="citaMenu">more_vert</mat-icon>
-            </button>
+<div class="day-column" *ngFor="let dia of diasSemana">
+  <div
+    class="time-slot cita-container"
+    *ngFor="let hora of horasDia; let indexAux = index"
+    [ngClass]="{
+      'break-time': esHoraDeDescanso(dia, hora),
+      'non-working-day': esDiaNoLaborable(dia),
+      'has-cita': obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter)
+    }"
+    [attr.disabled]="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) ? true : null"
+    (click)="!obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) && abrirModalNuevaReserva(dia, hora)"
+  >
+    <!-- Mostrar cita solo si está en el rango de horas -->
+     <ng-container   *ngIf="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) as citaDetalle">
+    <div
+      *ngIf="citaDetalle.flag !== 'consecutive'"
+      class="cita-block"
+      [style.inset]="'0px 0% ' + '-' + citaDetalle.costo + 'px'"
+    >
+      <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }}</span>
+      <button
+        (click)="$event.stopPropagation()"
+        mat-icon-button
+        aria-label="Ver opciones"
+      >
+        <mat-icon [matMenuTriggerFor]="citaMenu">more_vert</mat-icon>
+      </button>
 
-            <mat-menu #citaMenu="matMenu">
-              <button mat-menu-item>
-                <mat-icon>dialpad</mat-icon>
-                <span (click)="viewPatientDetails(citaDetalle.patient.patientId)">Iniciar Servicio</span>
-              </button>     
-              <button mat-menu-item>
-                <mat-icon>dialpad</mat-icon>
-                <span>{{citaDetalle.service.serviceName}}</span>
-              </button>          
-            </mat-menu>
-          </div>
-        </div>
-      </div>
+      <mat-menu #citaMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>dialpad</mat-icon>
+          <span (click)="viewPatientDetails(citaDetalle.patient.patientId)">Iniciar Servicio</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>dialpad</mat-icon>
+          <span>{{citaDetalle.service.serviceName}}</span>
+        </button>
+      </mat-menu>
+    </div>
+     </ng-container>
+
+  </div>
+</div>
+
     </div>
   </div>
 

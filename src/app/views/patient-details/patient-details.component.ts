@@ -35,7 +35,10 @@ import {
 } from '@angular/material/divider';
 import { ConsultationDetailsComponent } from '../consultation-details/consultation-details.component';
 import { ConsultationsService } from '../../services/consultations.service';
-import { MedicalConsultation } from '../../models/medial-consultation';
+import { PatientServiceEntity } from '../../models/medial-consultation';
+import { BusinessServiceService } from '../../services/business-service.service';
+import { BusinessService } from '../../models/business-service';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-patient-details',
@@ -54,15 +57,18 @@ import { MedicalConsultation } from '../../models/medial-consultation';
       MatButtonModule,
       MatDividerModule,
       ConsultationDetailsComponent,
+          MatSelectModule,
   ]
 })
 export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
+
   patient!: PatientData;
   patientId!: number;
   showNewConsultation = false;
-  newConsultation: MedicalConsultation = {patient: this.patient, details: '', notes: '', reasonOfConsultation: ''};
-  selectedConsultation!: MedicalConsultation | null;
+  newConsultation: PatientServiceEntity = {patient: this.patient, details: '', notes: '', reasonOfConsultation: '', services: []};
+  selectedConsultation!: PatientServiceEntity | null;
   currentDate!: Date;
+  servicios: BusinessService[] = [];
   private clickInsideConsultationDetails = false;
   @ViewChild('consultationDetailsCard') consultationDetailsCard!: ElementRef;
   @ViewChild('consultationDetailsContainer') consultationDetailsContainer!: ElementRef;
@@ -71,7 +77,8 @@ export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
       private route: ActivatedRoute,
       private patientService: PatientsService,
       private router: Router,
-      private consultationService: ConsultationsService      
+      private consultationService: ConsultationsService,
+      private businessService: BusinessServiceService
   ) { }
 
   ngOnInit(): void {
@@ -82,6 +89,11 @@ export class PatientDetailsComponent implements AfterViewInit, OnDestroy {
               this.getConsultations();     
           });
       });
+
+    this.businessService.getAllServices()
+    .subscribe(business => {
+      this.servicios = business;
+    });
   }
 
   getConsultations() {
@@ -152,4 +164,9 @@ getTodayDate() {
   this.currentDate = new Date();
   return this.currentDate;
 }
+
+onServiceSelected(data: MatSelectChange<any>) {
+  console.log("data ", data.value);
+  this.newConsultation.services.push({id: data.value});
+  }
 }

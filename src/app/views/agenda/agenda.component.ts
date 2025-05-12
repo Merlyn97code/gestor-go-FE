@@ -255,12 +255,23 @@ obtenerCitaEnHoraConDetalle(dia: Date, hora: string, citas: any[], patientFilter
   const inicioSlot = new Date(dia);
   inicioSlot.setHours(horaInicioSlot, minutosInicioSlot, 0, 0);
 
+  // Verificar si hay una cita en la hora anterior
+  const horaAnterior = new Date(inicioSlot.getTime() - 60 * 60 * 1000); // 1 hora antes
+  const citaEnHoraAnterior = citas.find(cita => {
+    const nombrePaciente = cita.nombrePaciente?.toLowerCase() || '';
+    const filtro = patientFilter.toLowerCase();
+    return cita.start < new Date(horaAnterior.getTime() + 60 * 60 * 1000) &&
+           cita.end > horaAnterior &&
+           nombrePaciente.includes(filtro);
+  });
+
+  // Buscar la cita en la hora actual
   const citaEnSlot = citas.find(cita => {
     const nombrePaciente = cita.nombrePaciente?.toLowerCase() || '';
     const filtro = patientFilter.toLowerCase();
 
-    return cita.start < new Date(inicioSlot.getTime() + 60 * 60 * 1000) && // Hasta 1h después
-           cita.end > inicioSlot && 
+    return cita.start < new Date(inicioSlot.getTime() + 60 * 60 * 1000) &&
+           cita.end > inicioSlot &&
            nombrePaciente.includes(filtro);
   });
 
@@ -276,17 +287,51 @@ obtenerCitaEnHoraConDetalle(dia: Date, hora: string, citas: any[], patientFilter
     // Guardamos el tiempo de fin de esta cita para compararlo con la próxima
     this.lastCitaEndTime = citaEndTimeMs;
 
-    const slotEnd = new Date(inicioSlot);
-    slotEnd.setHours(slotEnd.getHours() + 1); // solo para calcular la posición visual
+    // Verificar si el paciente tiene una cita en la hora anterior y poner una flag
+    const isConsecutive = !!citaEnHoraAnterior;
+    const citaFlag = isConsecutive ? 'consecutive' : 'normal';
 
+    // Calcular la duración de la cita en milisegundos y minutos
+    const diferenciaMs = citaEndTimeMs - citaStartTimeMs;
+    const duracionEnMinutos = diferenciaMs / (1000 * 60);
+
+    // Calcular el costo de la consulta
+    let costoTotal = 0;
+    if (duracionEnMinutos > 60) {
+      const minutosExtras = duracionEnMinutos - 60;
+      const horasOFraccionesExtras = Math.ceil(minutosExtras / 60);
+      costoTotal = horasOFraccionesExtras * 40;
+    }
+
+    // Calcular la posición visual (top y height)
     const slotStartMs = inicioSlot.getTime();
-    const slotEndMs = slotEnd.getTime();
+    const slotEndMs = slotStartMs + 60 * 60 * 1000;
 
-    const overlapStartMs = Math.max(slotStartMs, citaStartTimeMs);
-    const overlapEndMs = Math.min(slotEndMs, citaEndTimeMs);
+    const citaStartMs = citaStartTimeMs;
+    const citaEndMs = citaEndTimeMs;
+
+    const overlapStartMs = Math.max(slotStartMs, citaStartMs);
+    const overlapEndMs = Math.min(slotEndMs, citaEndMs);
 
     const overlapDurationMs = overlapEndMs - overlapStartMs;
     const slotDurationMs = slotEndMs - slotStartMs;
+
+    // Si la cita dura más de una hora, solo mostrar la primera hora visualmente
+    if (citaEndMs > slotEndMs) {
+      const firstHourEndMs = slotStartMs + 60 * 60 * 1000;
+      const firstHourOverlapDurationMs = firstHourEndMs - overlapStartMs;
+      const firstHourTopPercentage = (firstHourOverlapDurationMs / slotDurationMs) * 100;
+      const firstHourHeightPercentage = (firstHourOverlapDurationMs / slotDurationMs) * 100;
+
+      return {
+        ...citaEnSlot,
+        patient: citaEnSlot,
+        top: `${firstHourTopPercentage.toFixed(2)}%`,
+        height: `${firstHourHeightPercentage.toFixed(2)}%`,
+        flag: citaFlag,
+        costo: costoTotal
+      };
+    }
 
     const topOffsetMs = overlapStartMs - slotStartMs;
     const topPercentage = (topOffsetMs / slotDurationMs) * 100;
@@ -296,12 +341,16 @@ obtenerCitaEnHoraConDetalle(dia: Date, hora: string, citas: any[], patientFilter
       ...citaEnSlot,
       patient: citaEnSlot,
       top: `${topPercentage.toFixed(2)}%`,
-      height: `${heightPercentage.toFixed(2)}%`
+      height: `${heightPercentage.toFixed(2)}%`,
+      flag: citaFlag,
+      costo: costoTotal
     };
   }
 
   return null;
 }
+
+
 
 
  convertirHoraANumero(hora: string): number {

@@ -30,23 +30,30 @@
       </div>
 
       <div class="section">
-        <h3>🗒️ Nueva Consulta</h3>
-        <button mat-stroked-button color="primary" (click)="toggleNewConsultation()">Agregar Consulta</button>
+        <h3>🗒️ Nuevo Servicio</h3>
+        <button mat-stroked-button color="primary" (click)="toggleNewConsultation()">Agregar Servicio</button>
       </div>
 
 
       <div class="section past-consultations">
-        <h3>📅 Consultas Pasadas</h3>
+        <h3>📅 Servicios Pasados</h3>
         <mat-list>
           <mat-list-item
             *ngFor="let consultation of patient?.consultations; let i = index"
             (click)="showConsultationDetails(consultation)"
             class="consultation-item"
           >
-            <mat-icon matListIcon color="primary">assignment</mat-icon>
+            <div class="d-flex"> 
+              <mat-icon matListIcon color="primary">assignment</mat-icon>
+              <div *ngIf="consultation.services.length">
+                {{consultation.services[0].serviceName}}
+              </div>
+              <div *ngIf="!consultation.services.length">
+                Nombre de servicio no disponible
+              </div>
+            </div>
             <div matLine class="consultation-info">
-              <span class="consultation-date">{{ consultation?.createdAt | date: 'dd/MM/yyyy - HH:mm' }}</span>
-              <span class="consultation-details">Consulta</span>
+              <span class="consultation-date">{{ consultation?.createdAt | date: 'dd/MM/yyyy - HH:mm' }}</span>              
             </div>
             <mat-icon matSuffix color="accent">chevron_right</mat-icon>
           </mat-list-item>
@@ -109,6 +116,17 @@
             <textarea matInput [(ngModel)]="newConsultation.notes"></textarea>
           </mat-form-field>
         </div>
+
+            <div class="form-group">
+            <mat-form-field class="full-width">
+              <mat-label><mat-icon>medical_services</mat-icon> Servicio</mat-label>
+              <mat-select (selectionChange)="onServiceSelected($event)">
+                <mat-option *ngFor="let servicio of servicios" [value]="servicio.id">
+                  {{ servicio.serviceName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
         <button *ngIf="showNewConsultation" mat-raised-button color="accent" (click)="addConsultation()">Guardar</button>
       </div>

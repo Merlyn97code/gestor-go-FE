@@ -54,6 +54,7 @@
     >
       <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }}</span>
       <button
+        class="menu-style"
         (click)="$event.stopPropagation()"
         mat-icon-button
         aria-label="Ver opciones"
@@ -76,12 +77,8 @@
 
   </div>
 </div>
-
     </div>
   </div>
-
-
-
   <app-new-reservation
     *ngIf="isModalOpen"
     [selectedDate]="selectedDateForModal"

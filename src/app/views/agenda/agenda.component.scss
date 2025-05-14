@@ -1,72 +1,122 @@
+// Variables (puedes moverlas a un archivo _variables.scss si tienes estructura modular)
+$primary-color: #3f51b5;
+$hover-bg: #e8eaf6;
+$border-color: #e0e0e0;
+$light-bg: #f5f7fa;
+$light-gray: #fafafa;
+$hover-slot: #f0f9ff;
+$active-slot: #e0f2fe;
+$break-bg: #fff4e5;
+$non-working-bg: #f1f5f9;
+$font-main: 'Roboto', sans-serif;
+
+// Agenda General
 .agenda-container {
   display: flex;
   flex-direction: column;
   max-width: 1200px;
   margin: 2rem auto;
-  border-radius: 16px;
+  border-radius: 1rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   background-color: #fff;
   overflow: hidden;
-  font-family: 'Roboto', sans-serif;
+  font-family: $font-main;
 }
 
+// Header
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background-color: #f5f7fa;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: $light-bg;
+  border-bottom: 1px solid $border-color;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .week-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    text-align: center;
+    flex: 1;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 576px) {
+      font-size: 1rem;
+    }
+  }
+
+  .nav-button {
+    background: none;
+    border: none;
+    color: $primary-color;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: $hover-bg;
+    }
+
+    mat-icon {
+      font-size: 24px;
+
+      @media (max-width: 576px) {
+        font-size: 20px;
+      }
+    }
+  }
 }
 
-.nav-button {
-  background: none;
-  border: none;
-  color: #3f51b5;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.nav-button:hover {
-  background-color: #e8eaf6;
-}
-
-.week-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-  text-align: center;
-  flex: 1;
-}
-
+// Filtros
 .filters {
   padding: 1rem 1.5rem;
   background-color: #f0f2f5;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid $border-color;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 }
 
-.filters mat-form-field {
-  width: 100%;
-}
-
+// Grid Agenda
 .agenda-grid-container {
   display: grid;
   grid-template-columns: 80px 1fr;
   overflow-x: auto;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 60px 1fr;
+  }
 }
 
 .time-column {
   display: grid;
   grid-template-rows: auto repeat(auto-fill, minmax(40px, 1fr));
-  border-right: 1px solid #e0e0e0;
-  background-color: #fafafa;
+  border-right: 1px solid $border-color;
+  background-color: $light-gray;
 }
 
 .days-container {
   display: grid;
   grid-template-columns: repeat(7, minmax(100px, 1fr));
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(7, minmax(80px, 1fr));
+  }
 }
 
 .header-cell {
@@ -78,25 +128,52 @@
   font-size: 0.95rem;
   color: #555;
   background-color: #edf2f7;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid $border-color;
 }
 
-.time-slot {
+// Celdas de tiempo
+.time-slot {  
   display: flex;
-  align-items: center;
-  justify-content: center;  
-  font-size: 0.85rem;
-  color: #555;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  min-height: 40px;
-  transition: background-color 0.2s ease;
+  justify-content: center; /* Centra el contenido horizontalmente */
+  align-items: center;     /* Centra el contenido verticalmente */
+  text-align: center;   
+  &:hover {
+    background-color: $hover-slot;
+    box-shadow: inset 0 0 0 1px #38bdf8;
+    font-weight: 600;
+    color: #0c4a6e;
+    z-index: 2;
+  }
+
+  &:active {
+    background-color: $active-slot;
+    box-shadow: inset 0 0 0 2px #0ea5e9;
+  }
+
+  &.disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    background-color: #f8fafc;
+    color: #94a3b8;
+    font-weight: 400;
+    box-shadow: none;
+  }
+
+  &.break-time {
+    background-color: $break-bg;
+    color: #a15c00;
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  &.non-working-day {
+    background-color: $non-working-bg;
+    color: #94a3b8;
+    font-weight: 400;
+  }
 }
 
-.time-slot:hover {
-  background-color: #f4f6f8;
-}
-
+// Columnas y citas
 .day-column {
   display: flex;
   flex-direction: column;
@@ -111,63 +188,51 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
+  &.has-cita {
+    background-color: transparent;
+  }
+
+  .cita-block {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    background-color: #e3f2fd;
+    color: #333;
+    border-radius: 6px;
+    font-size: 0.85em;
+    padding: 0 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+
+    &:hover {
+      background-color: #bbdefb;
+    }
+
+    .patient-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 0.5rem;
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: #666;
+      padding: 0;
+      margin-left: 4px;
+    }
+  }
 }
 
-.cita-container.has-cita {
-  background-color: transparent;
-}
-
-.cita-block {
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  background-color: #e3f2fd;
-  color: #333;
-  border-radius: 6px;
-  font-size: 0.85em;
-  padding: 0px 8px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);  
-}
-
-
-
-.patient-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 0.5rem;
-}
-
-.cita-block button {
-  background: none;
-  border: none;
-  color: #666;
-  padding: 0;
-  margin-left: 4px;
-}
-
-.cita-block:hover {
-  background-color: #bbdefb;
-}
-
-.break-time {
-  background-color: #ffe0b2;
-  color: #5d4037;
-  cursor: not-allowed;
-}
-
-.non-working-day {
-  background-color: #f0f0f0;
-  color: #aaa;
-  cursor: not-allowed;
-}
-
+// Modales y overlays
 app-new-reservation {
   position: fixed;
   top: 50%;
@@ -176,49 +241,17 @@ app-new-reservation {
   background: #fff;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   max-width: 500px;
   width: 90%;
   z-index: 1000;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .agenda-grid-container {
-    grid-template-columns: 60px 1fr;
-  }
-
-  .week-title {
-    font-size: 1.1rem;
-  }
-
-  .days-container {
-    grid-template-columns: repeat(7, minmax(80px, 1fr));
-  }
-
-  .header,
-  .filters {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .week-title {
-    font-size: 1rem;
-  }
-
-  .header {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-
-  .nav-button mat-icon {
-    font-size: 20px;
-  }
-}
-
-
+// Utilidades
 .padding-0 {
   padding: 0;
+}
+
+.menu-style {
+  z-index: 999999;
 }

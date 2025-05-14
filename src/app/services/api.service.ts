@@ -55,4 +55,8 @@ export class ApiService {
   patch<T>(endpoint: string, body: T): Observable<T> {
     return this.http.patch<T>(`${this.url}${endpoint}`, body);
   }
+
+  delete(id: number) {
+    return this.http.delete(`${this.url}/${id}`);
+  }
 }

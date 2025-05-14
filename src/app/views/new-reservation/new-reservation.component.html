@@ -1,120 +1,94 @@
-<div class="modal-overlay">
-  <div class="modal-content">
-    <!-- Header -->
-    <div class="modal-header">
-      <h2>Nueva reserva</h2>
-      <button mat-icon-button (click)="onCloseModal()">
-        <mat-icon>close</mat-icon>
+<div class="booking-modal">
+  <!-- Header -->
+  <header class="modal-header">
+    <h1>Reservar Cita</h1>
+    <button mat-icon-button aria-label="Cerrar" (click)="onCloseModal()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <!-- Body -->
+  <form class="modal-body" [formGroup]="reservaForm">
+    <!-- Fecha y horas -->
+    <div class="field-row">
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Fecha</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="fecha" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Hora Inicio</mat-label>
+        <input matInput type="time" formControlName="horaInicio" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Hora Fin</mat-label>
+        <input matInput type="time" formControlName="horaFin" />
+      </mat-form-field>
+    </div>
+
+    <!-- Paciente -->
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Buscar paciente</mat-label>
+      <input
+        matInput
+        formControlName="searchPaciente"
+        [matAutocomplete]="auto"        
+        placeholder="Nombre o correo"
+      />
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectPatient($event.option.value)">
+        <mat-option *ngFor="let patient of searchResults$ | async" [value]="patient">
+          {{ getPatientDisplayName(patient) }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <div *ngIf="selectedPatient" class="selected-patient">
+      <span>Paciente: {{ getPatientDisplayName(selectedPatient) }}</span>
+      <button mat-icon-button color="warn" aria-label="Quitar paciente" (click)="removePatient()" [disabled]="fromUrl">
+        <mat-icon>cancel</mat-icon>
       </button>
     </div>
 
-    <!-- Body -->
-    <div class="modal-body">
-      <form [formGroup]="reservaForm" class="reservation-form">
-        <div class="form-grid">
+    <button mat-stroked-button type="button" class="new-patient-btn">
+      + Agregar nuevo paciente
+    </button>
 
-          <!-- Hora Inicio -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>access_time</mat-icon> Hora Inicio</mat-label>
-              <input matInput type="time" formControlName="horaInicio">
-            </mat-form-field>
-          </div>
+    <!-- Servicio -->
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Servicio</mat-label>
+      <mat-select formControlName="servicio">
+        <mat-option *ngFor="let servicio of servicios" [value]="servicio.id">
+          {{ servicio.serviceName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
 
-          <!-- Hora Fin -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>access_time</mat-icon> Hora Fin</mat-label>
-              <input matInput type="time" formControlName="horaFin">
-            </mat-form-field>
-          </div>
+    <!-- Precio -->
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Precio</mat-label>
+      <input matInput type="number" formControlName="precio" />
+    </mat-form-field>
 
-          <!-- Fecha -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>calendar_today</mat-icon> Fecha</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="fecha">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-          </div>
+    <!-- Info adicional -->
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Notas o información adicional</mat-label>
+      <textarea matInput formControlName="informacionAdicional" rows="3"></textarea>
+    </mat-form-field>
+  </form>
 
-          <!-- Paciente -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label>Paciente</mat-label>
-              <input
-                matInput
-                type="text"
-                formControlName="searchPaciente"
-                [matAutocomplete]="auto"
-                [disabled]="selectedPatient !== null"
-              />
-              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectPatient($event.option.value)">
-                <mat-option *ngFor="let patient of searchResults$ | async" [value]="patient">
-                  {{ getPatientDisplayName(patient) }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-
-            <!-- Paciente Seleccionado -->
-            <div *ngIf="selectedPatient">
-              <label>Paciente Seleccionado:</label>
-              <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-                <span>{{ getPatientDisplayName(selectedPatient) }}</span>
-                <button [disabled]="fromUrl" mat-icon-button color="warn" (click)="removePatient()">
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <!-- Botón agregar paciente -->
-            <button type="button" class="add-patient">Agregar nuevo paciente</button>
-          </div>
-
-          <!-- Servicio -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>medical_services</mat-icon> Servicio</mat-label>
-              <mat-select formControlName="servicio">
-                <mat-option *ngFor="let servicio of servicios" [value]="servicio.id">
-                  {{ servicio.serviceName }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <!-- Precio -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>attach_money</mat-icon> Precio</mat-label>
-              <input matInput type="number" formControlName="precio">
-            </mat-form-field>
-          </div>
-
-          <!-- Información adicional -->
-          <div class="form-group">
-            <mat-form-field class="full-width">
-              <mat-label><mat-icon>info</mat-icon> Información adicional</mat-label>
-              <textarea matInput formControlName="informacionAdicional"></textarea>
-            </mat-form-field>
-          </div>
-
-        </div>
-      </form>
-    </div>
-
-    <!-- Footer -->
-    <div class="modal-footer">
-      <button mat-raised-button (click)="onCloseModal()">Cancelar</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onGuardarReserva()"
-        [disabled]="reservaForm.invalid || !selectedPatient"
-      >
-        Guardar reserva
-      </button>
-    </div>
-  </div>
+  <!-- Footer -->
+  <footer class="modal-footer">
+    <button mat-stroked-button color="primary" (click)="onCloseModal()">Cancelar</button>
+    <button
+      mat-flat-button
+      color="accent"
+      (click)="onGuardarReserva()"
+      [disabled]="reservaForm.invalid || !selectedPatient"
+    >
+      Guardar
+    </button>
+  </footer>
 </div>

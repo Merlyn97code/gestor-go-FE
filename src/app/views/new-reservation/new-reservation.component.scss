@@ -1,170 +1,103 @@
-/* Estilos generales para el overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px; /* Pequeño padding para pantallas chicas */
-}
-
-/* Estilos del modal */
-.modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh; /* Limita la altura del modal */
+.booking-modal {
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Evita que se desborde */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 700px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Estilos del header */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ccc;
+  background: #f5f5f5;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
 }
 
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5em;
-}
-
-.modal-header button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2em;
-}
-
-/* Estilos del cuerpo del modal */
 .modal-body {
-  flex-grow: 1;
-  overflow-y: auto; /* Solo se puede hacer scroll en el cuerpo */
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding-right: 10px; /* Para que no tape el scrollbar */
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 1.5rem;
+
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .form-field {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  .form-field.full-width {
+    width: 100%;
+  }
+
+  .selected-patient {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eef5f9;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #2a4d69;
+  }
+
+  .new-patient-btn {
+    align-self: flex-start;
+    font-size: 0.9rem;
+    margin-top: -0.5rem;
+  }
 }
 
-/* Estilos del footer */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #ccc;
-  background-color: white; /* Fondo blanco para el footer */
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #fafafa;
+  border-top: 1px solid #e0e0e0;
 }
 
-/* Estilos para el formulario */
-.reservation-form {
-  display: flex;
-  flex-direction: column;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Hace que las columnas sean responsivas */
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.full-width {
-  width: 100%;
-}
-
-/* Botón para agregar paciente */
-.add-patient {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.add-patient:hover {
-  background-color: #388E3C;
-}
-
-/* Estilos de los botones en el footer */
-.modal-footer button {
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-}
-
-.modal-footer button[mat-raised-button] {
-  background-color: #e3f2fd;
-  color: #1e88e5;
-}
-
-.modal-footer button[mat-raised-button][color="primary"] {
-  background-color: #1e88e5;
-  color: white;
-}
-
-.modal-footer button:hover {
-  opacity: 0.8;
-}
-
-/* Responsividad para pantallas pequeñas */
+// Responsive
 @media (max-width: 600px) {
-
-    .form-group {
-    margin-bottom: 10px; /* Espacio reducido entre campos */
-  }
-
-  
-  .modal-content {
-    width: 100%; /* Modal ocupa todo el ancho */
-    max-width: 100%; /* Sin límite en el ancho */
-    max-height: 100vh; /* Asegura que el modal no se salga de la pantalla */
-    padding: 10px;
-  }
-
-  .modal-header h2 {
-    font-size: 1.3em;
-  }
-
-  .modal-body {
-    padding: 10px 0;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr; /* En pantallas pequeñas, solo una columna */
-  }
-
-  .form-group {
-    margin-bottom: 10px; /* Espacio reducido entre campos */
+  .modal-body .field-row {
+    flex-direction: column;
   }
 
   .modal-footer {
-    gap: 5px; /* Menos espacio entre botones */
+    flex-direction: column-reverse;
+    button {
+      width: 100%;
+    }
   }
 
-  .modal-footer button {
-    font-size: 0.9em; /* Botones un poco más pequeños */
-  }
-
-  .add-patient {
-    width: 100%; /* Hacer el botón de agregar paciente al 100% */
-    padding: 12px; /* Mayor padding para hacerlo más accesible */
+  .modal-header h1 {
+    font-size: 1.2rem;
   }
 }

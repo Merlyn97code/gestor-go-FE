@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AppointmentsService } from '../../services/appointments.service';
 import { Appointment } from '../../models/appointment';
+import { PatientData } from '../../models/patients';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,11 +24,16 @@ export class DashboardComponent {
   remainingAppointments: Array<Appointment> = [];
   appointmentSelected: Array<Appointment> = [];
   title: string = 'Today';
-  constructor(private appointmentsService: AppointmentsService) { }
+  consultaToDelete!: Appointment | null;
+  constructor(private appointmentsService: AppointmentsService, private router: Router) { }
 
   ngOnInit(): void {
-    // Aquí puedes inicializar los datos al cargar el componente.
-    this.appointmentsService.getTodayAppointments()
+    this.loadData();   
+  }
+
+
+  loadData() {
+        this.appointmentsService.getTodayAppointments()
     .subscribe(todayAppointments => {      
       this.todayAppointments = todayAppointments;
       this.changeAppointmentListSelected('Hoy', todayAppointments);
@@ -39,21 +45,7 @@ export class DashboardComponent {
     this.appointmentsService.getRemainingAppointments()
     .subscribe(remainingAppointments => {      
       this.remainingAppointments = remainingAppointments;
-    });
-    this.loadDashboardData();    
-  }
-
-  // Método que simula la carga de datos desde un servicio o API.
-  loadDashboardData(): void {
-    // Datos de ejemplo. Esto debería ser reemplazado con llamadas a un servicio real.
-    this.totalConsultas = 120;
-    this.consultasDia = 5;
-    this.nextAppointments = 115;
-    this.proximasConsultas = [
-      { paciente: 'Juan Pérez', fecha: '2025-03-08 10:00 AM' },
-      { paciente: 'María Gómez', fecha: '2025-03-08 10:30 AM' },
-      { paciente: 'Carlos Ruiz', fecha: '2025-03-08 11:00 AM' }
-    ];
+    }); 
   }
 
   // Método que se ejecuta al hacer clic en el botón de "Ver Consultas del Día"
@@ -65,4 +57,38 @@ export class DashboardComponent {
     this.title = title;
     this.appointmentSelected = appointments;
     }
+
+  viewPatientDetails(patientId: number | undefined) {    
+    this.router.navigate(['patient-details', patientId]);
+  }
+
+  
+
+openDeleteModal(consulta: Appointment): void {
+  this.consultaToDelete = consulta;
+}
+
+cancelDelete(): void {
+  this.consultaToDelete = null;
+}
+
+confirmDelete(): void {
+  if (this.consultaToDelete) {
+    // Aquí colocas tu lógica para eliminar la consulta (puede ser por ID)
+    const id = this.consultaToDelete.appointmentId
+    this.deleteConsultaById(id);
+    this.consultaToDelete = null;
+  }
+}
+
+deleteConsultaById(id: number | undefined): void {  
+  if (id) {
+    this.appointmentsService.delete(id)        
+    .subscribe(() => {
+     this.loadData();
+    });
+  }      
+}
+
+    
 }

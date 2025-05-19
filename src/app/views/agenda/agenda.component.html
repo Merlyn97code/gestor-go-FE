@@ -40,51 +40,41 @@
     [ngClass]="{
       'break-time': esHoraDeDescanso(dia, hora),
       'non-working-day': esDiaNoLaborable(dia),
-      'has-cita': obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter)
+      'has-cita': obtenerCitasEnHoraConDetalle(dia, hora, citas, patientFilter)?.length
     }"
-    [attr.disabled]="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) ? true : null"
-    (click)="!obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) && abrirModalNuevaReserva(dia, hora)"
+    [attr.disabled]="obtenerCitasEnHoraConDetalle(dia, hora, citas, patientFilter)?.length ? true : null"
+    (click)="abrirModalNuevaReserva(dia, hora)"
   >
-    <!-- Mostrar cita solo si está en el rango de horas -->
-     <ng-container   *ngIf="obtenerCitaEnHoraConDetalle(dia, hora, citas, patientFilter) as citaDetalle">
-    <div
-      *ngIf="citaDetalle.flag !== 'consecutive'"
-      class="cita-block"
-      [style.inset]="'0px 0% ' + '-' + citaDetalle.costo + 'px'"
-    >
-      <span class="patient-name">{{ citaDetalle.patient?.nombrePaciente }}</span>
-      <button
-        class="menu-style"
-        (click)="$event.stopPropagation()"
-        mat-icon-button
-        aria-label="Ver opciones"
+    <ng-container *ngIf="obtenerCitasEnHoraConDetalle(dia, hora, citas, patientFilter) as citasEnHora">
+      <ng-container         *ngFor="let citaDetalle of citasEnHora">
+      <div
+        class="cita-block"        
+        [style.inset]="'0px 0% ' + '-' + citaDetalle.costo + 'px'"
+        [style.width]="citaDetalle.width"
+        *ngIf="citaDetalle.flag !== 'consecutive'"
       >
-        <mat-icon [matMenuTriggerFor]="citaMenu">more_vert</mat-icon>
-      </button>
+        <span
+          class="patient-name"
+        (click)="viewPatientDetails(citaDetalle)"
+        >
+          {{ citaDetalle.patient?.nombrePaciente }}
+        </span>
+        </div>
+      </ng-container>
 
-      <mat-menu #citaMenu="matMenu">
-        <button mat-menu-item>
-          <mat-icon>dialpad</mat-icon>
-          <span (click)="viewPatientDetails(citaDetalle.patient.patientId)">Iniciar Servicio</span>
-        </button>
-        <button mat-menu-item>
-          <mat-icon>dialpad</mat-icon>
-          <span>{{citaDetalle.service.serviceName}}</span>
-        </button>
-      </mat-menu>
-    </div>
-     </ng-container>
-
+    </ng-container>
   </div>
 </div>
+      
     </div>
   </div>
   <app-new-reservation
-    *ngIf="isModalOpen"
+    *ngIf="isModalOpen || appointmentSelected"
     [selectedDate]="selectedDateForModal"
     [selectedTime]="selectedTimeForModal"
     [patientId]="patientId"
     [fromUrl]="fromUrl"
+    [appointmentSelected]="appointmentSelected"
     (closeModal)="cerrarModalNuevaReserva()"
     (reservaGuardada)="guardarNuevaReserva($event)"
   ></app-new-reservation>

@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { PatientsService } from '../../services/patients.service';
 import { debounceTime, distinctUntilChanged, filter, Observable, Subject, switchMap, of } from 'rxjs';
 import { Patient } from '../../models/patients'; // Asegúrate de que la ruta sea correcta
-import { AppointmentsService } from '../../services/appointments.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -15,6 +14,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { BusinessServiceService } from '../../services/business-service.service';
 import { BusinessService } from '../../models/business-service';
+import { Appointment } from '../../models/appointment';
 
 interface Profesional {
   id: number;
@@ -39,6 +39,8 @@ interface Profesional {
   standalone: true
 })
 export class NewReservationComponent implements OnInit {
+
+  @Input() appointmentSelected!: Appointment | null;
   @Input() isOpen: boolean = false;
   @Input() patientId!: number | null;
   @Input() selectedDate: Date | null = null;
@@ -70,52 +72,95 @@ export class NewReservationComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fillSelectedDate();
+    this.setHourForAppointment();    
+    this.fillFormWhenPatientAppointmentIsSelected();
+    this.listenFieldService();
+    this.listenFieldSearchPaciente();     
+    this.getAllServices();
+  }
+
+  getAllServices() {
+    this.businessService.getAllServices()
+    .subscribe(business => {
+      this.servicios = business;
+    });
+  }
+
+  listenFieldSearchPaciente() {
+    this.searchResults$ = this.reservaForm.get('searchPaciente')?.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter(term => term?.length >= 2),
+      switchMap(term => this.patientService.getPatientByName(term))
+    );
+  }
+  listenFieldService() {
+    this.reservaForm.get('servicio')?.valueChanges.subscribe(servicioId => {
+      const servicioSeleccionado = this.servicios.find(s => s.id === servicioId);
+      this.reservaForm.patchValue({ precio: servicioSeleccionado?.price });
+    });
+  }
+
+  fillFormWhenPatientAppointmentIsSelected() {
+     if(this.appointmentSelected?.service.id) {
+      this.reservaForm.get('servicio')?.patchValue(this.appointmentSelected?.service.id);      
+      this.reservaForm.get('precio')?.patchValue(this.appointmentSelected.service.price);                  
+    }
+
+    if (this.thereIsPatientSelected()) {
+      if (this.appointmentSelected?.patient.patientId) {
+        this.patientId = this.appointmentSelected.patient.patientId;
+      }
+      this.reservaForm.get('searchPaciente')
+      ?.disable({onlySelf: true});
+
+      this.fieldNamePatientSelected();
+   
+    } else {
+      this.reservaForm.get('pacientes')?.patchValue(null);
+      this.reservaForm.get('searchPaciente')?.setValue('');
+    }
+
+  }
+
+  thereIsPatientSelected() {
+    return this.patientId || (this.appointmentSelected !== null && this.appointmentSelected?.patient);
+  }
+
+  fieldNamePatientSelected() {
+    if (this.patientId) {
+           this.patientService.getPatientById(this.patientId)
+        .subscribe(patient => {
+          this.selectedPatient = patient;
+          this.reservaForm.get('pacientes')?.patchValue(patient);
+          this.reservaForm.get('searchPaciente')?.setValue(this.getPatientDisplayName(patient));
+        });
+      }
+  }
+
+
+  
+  fillSelectedDate() {
     if (this.selectedDate) {
       this.reservaForm.patchValue({ fecha: this.selectedDate });
-    }
-    if (this.selectedTime) {
+    }    
+  }
+  setHourForAppointment() {
+    if(this.selectedTime) {            
       const [hora, minutos] = this.selectedTime.split(':').map(Number);
       const startTime = new Date(this.selectedDate!);
       startTime.setHours(hora, minutos, 0, 0);
       const endTime = new Date(startTime);
       endTime.setHours(hora + 1, minutos, 0, 0);
+    
+      console.log('Estableciendo horaInicio manualmente:', `${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')}`);
 
       this.reservaForm.patchValue({
         horaInicio: `${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')}`,
         horaFin: `${String(endTime.getHours()).padStart(2, '0')}:${String(endTime.getMinutes()).padStart(2, '0')}`
       });
     }
-
-    this.reservaForm.get('servicio')?.valueChanges.subscribe(servicioId => {
-      const servicioSeleccionado = this.servicios.find(s => s.id === servicioId);
-      this.reservaForm.patchValue({ precio: servicioSeleccionado?.price });
-    });
-
-    this.searchResults$ = this.reservaForm.get('searchPaciente')?.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      filter(term => term.length >= 2),
-      switchMap(term => this.patientService.getPatientByName(term))
-    );
-
-    if (this.patientId) {
-      this.reservaForm.get('searchPaciente')
-      ?.disable({onlySelf: true});
-      this.patientService.getPatientById(this.patientId)
-        .subscribe(patient => {
-          this.selectedPatient = patient;
-          this.reservaForm.get('pacientes')?.patchValue(patient);
-          this.reservaForm.get('searchPaciente')?.setValue(this.getPatientDisplayName(patient));
-        });
-    } else {
-      this.reservaForm.get('pacientes')?.patchValue(null);
-      this.reservaForm.get('searchPaciente')?.setValue('');
-    }
-
-    this.businessService.getAllServices()
-    .subscribe(business => {
-      this.servicios = business;
-    });
   }
 
   onCloseModal(): void {
@@ -177,4 +222,47 @@ export class NewReservationComponent implements OnInit {
   getPatientDisplayName(patient: Patient): string {
     return `${patient.person?.firstName || ''} ${patient.person?.lastName || ''}`;
   }
+
+dateOrHourOfAppointmentChange(): boolean {
+  if (!this.appointmentSelected) {
+    return false;
+  }
+
+  const formHoraInicio = this.reservaForm.get('horaInicio')?.value; // string: "13:00"
+  const formHoraFin = this.reservaForm.get('horaFin')?.value;       // string: "14:00"
+
+  const appointmentStart = new Date(this.appointmentSelected.appointmentStart); // Date
+  const appointmentEnd = new Date(this.appointmentSelected.appointmentEnd);     // Date
+
+  // Extraer fecha del form (suponiendo que ya tienes selectedDate)
+  const selectedDate = this.appointmentSelected.appointmentStart ?? appointmentStart; // Fallback si no hay selectedDate
+
+  const [horaInicioH, horaInicioM] = formHoraInicio.split(':').map(Number);
+  const [horaFinH, horaFinM] = formHoraFin.split(':').map(Number);
+
+  // Crear objetos Date con fecha + hora del formulario
+  const formStartDate = new Date(selectedDate);
+  formStartDate.setHours(horaInicioH, horaInicioM, 0, 0);
+
+  const formEndDate = new Date(selectedDate);
+  formEndDate.setHours(horaFinH, horaFinM, 0, 0);
+
+  // Validar si la fecha-hora de inicio o fin cambió
+  const startChanged = formStartDate.getTime() !== appointmentStart.getTime();
+  const endChanged = formEndDate.getTime() !== appointmentEnd.getTime();
+
+  if (startChanged || endChanged) {
+    console.log('Cambio detectado en la reserva:');
+    if (startChanged) {
+      console.log('Hora de inicio diferente:', formStartDate, 'vs', appointmentStart);
+    }
+    if (endChanged) {
+      console.log('Hora de fin diferente:', formEndDate, 'vs', appointmentEnd);
+    }
+    return true;
+  }
+
+  return false;
+}
+
 }

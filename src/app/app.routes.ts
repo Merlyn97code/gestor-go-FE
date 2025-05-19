@@ -8,11 +8,19 @@ import { WelcomeComponent } from './views/welcome/welcome.component';
 import { CreatePatientComponent } from './views/create-patient/create-patient.component';
 import { PatientDetailsComponent } from './views/patient-details/patient-details.component';
 import { authGuard } from './auth.guard';
+import { loginGuard } from './login.guard';
 
 export const routes: Routes = [
     {
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full'
+    },
+
+    {
         path: "login",
-        component: LoginComponent
+        component: LoginComponent,
+        canActivate: [loginGuard]
     },
     {
         path: "dashboard",

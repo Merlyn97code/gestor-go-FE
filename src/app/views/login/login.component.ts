@@ -4,10 +4,12 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, Reac
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { Auth } from '../../models/auth';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterModule, CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, CommonModule, ReactiveFormsModule, RouterModule, MatFormFieldModule, MatInputModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   standalone: true
@@ -16,7 +18,7 @@ export class LoginComponent {
   
   emailAuth: FormGroup;
   selectedRole: string = 'admin'; // Valor predeterminado de rol
-  
+   private _formBuilder = inject(FormBuilder);
 
   constructor(private router: Router, private loginService: LoginService,
        private formBuilder: FormBuilder 
@@ -44,8 +46,16 @@ export class LoginComponent {
           localStorage.setItem('authToken', response.token);          
         }
       },
-      error: (error) => {
-        console.error('Error en login:', error);
+      error: (err) => {      
+      if (err.status === 400 && err.error.field) {
+        const fieldName = err.error.field;
+      if (this.emailAuth.get(fieldName)) {
+      this.emailAuth.get(fieldName)?.setErrors({
+      serverError: err.error.message
+    });
+  }
+}
+
       },
       complete: () => {
         this.router.navigate(['/dashboard']);

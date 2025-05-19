@@ -52,10 +52,12 @@
       </button>
     </div>
 
-    <button mat-stroked-button type="button" class="new-patient-btn">
+    
+    <ng-container *ngIf="!thereIsPatientSelected()">
+    <button  mat-stroked-button type="button" class="new-patient-btn">
       + Agregar nuevo paciente
     </button>
-
+    </ng-container>
     <!-- Servicio -->
     <mat-form-field appearance="fill" class="form-field full-width">
       <mat-label>Servicio</mat-label>
@@ -82,6 +84,7 @@
   <!-- Footer -->
   <footer class="modal-footer">
     <button mat-stroked-button color="primary" (click)="onCloseModal()">Cancelar</button>
+    <ng-container *ngIf="!(this.appointmentSelected !== null && this.appointmentSelected?.patient)">
     <button
       mat-flat-button
       color="accent"
@@ -90,5 +93,20 @@
     >
       Guardar
     </button>
+    </ng-container>
+
+
+    <ng-container *ngIf="(this.appointmentSelected !== null && this.appointmentSelected?.patient)">
+    <button
+      mat-flat-button
+      color="accent"
+      (click)="onGuardarReserva()"
+      [disabled]="!dateOrHourOfAppointmentChange()"
+    >
+      Reagendar
+    </button>
+
+    </ng-container>
+
   </footer>
 </div>

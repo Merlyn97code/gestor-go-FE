@@ -150,14 +150,6 @@ $font-main: 'Roboto', sans-serif;
     box-shadow: inset 0 0 0 2px #0ea5e9;
   }
 
-  &.disabled,
-  &[disabled] {
-    cursor: not-allowed;
-    background-color: #f8fafc;
-    color: #94a3b8;
-    font-weight: 400;
-    box-shadow: none;
-  }
 
   &.break-time {
     background-color: $break-bg;
@@ -254,4 +246,63 @@ app-new-reservation {
 
 .menu-style {
   z-index: 999999;
+}
+
+
+.menu-style {
+  mat-icon {
+    font-size: 20px;
+    color: #666;
+    transition: color 0.3s ease;
+  }
+
+  &:hover mat-icon {
+    color: $primary-color;
+  }
+
+  &:focus mat-icon {
+    outline: none;
+    color: darken($primary-color, 10%);
+  }
+}
+
+::ng-deep .mat-menu-panel {
+  border-radius: 8px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+  min-width: 180px;
+  padding: 0.25rem 0;
+
+  .mat-menu-item {
+    font-family: $font-main;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+
+    mat-icon {
+      font-size: 20px;
+      color: $primary-color;
+    }
+
+    &:hover {
+      background-color: $hover-bg;
+      color: $primary-color;
+
+      mat-icon {
+        color: darken($primary-color, 10%);
+      }
+    }
+
+    &:focus {
+      background-color: lighten($primary-color, 35%);
+      outline: none;
+    }
+  }
+}
+
+
+.d-flex {
+  display: flex;
+  flex-direction: column;
 }
